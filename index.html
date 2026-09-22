@@ -1,0 +1,1005 @@
+<!DOCTYPE html>
+<html lang="hr" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>6am NOGI - Sub Challenge</title>
+  
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Oswald:wght@500;600;700&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            display: ['Oswald', 'sans-serif'],
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+    .sticky-col {
+      position: sticky;
+      left: 0;
+      z-index: 10;
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased">
+
+  <!-- HEADER & APP BAR -->
+  <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+      
+      <!-- Brand Logo / Title -->
+      <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+        <div class="flex items-center space-x-3">
+          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-amber-500 to-red-600 flex items-center justify-center shadow-lg shadow-amber-500/20 text-white font-bold font-display text-center leading-tight">
+            <span class="text-xs tracking-tighter">6AM<br><strong class="text-sm">NOGI</strong></span>
+          </div>
+          <div>
+            <h1 class="text-2xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
+              Sub Challenge
+              <span id="syncBadge" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase tracking-widest font-sans font-semibold flex items-center gap-1">
+                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live Sync
+              </span>
+            </h1>
+            <p class="text-xs text-slate-400">16 Competitors • 12 Sessions</p>
+          </div>
+        </div>
+
+        <!-- Admin Lock Indicator -->
+        <button id="adminStatusBtnMobile" class="sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400">
+          <i class="fa-solid fa-lock text-amber-400"></i> <span id="adminBtnTextMobile">Admin</span>
+        </button>
+      </div>
+
+      <!-- Controls & Admin Access -->
+      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+        <button id="adminStatusBtnDesktop" class="hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600">
+          <i id="adminLockIcon" class="fa-solid fa-lock text-amber-400"></i> 
+          <span id="adminBtnText">Locked (PIN: 1234)</span>
+        </button>
+      </div>
+
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- NAVIGATION TABS & STATS BAR -->
+    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-lg">
+      
+      <!-- Nav Tabs -->
+      <nav class="flex flex-wrap gap-2" id="navTabs">
+        <button data-tab="tablica" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl transition flex items-center gap-2 bg-amber-500 text-slate-950 font-semibold shadow-md">
+          <i class="fa-solid fa-table-list"></i>
+          Tablica subova
+        </button>
+        <button data-tab="leastTapped" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2">
+          <i class="fa-solid fa-shield-halved"></i>
+          Tablica najmanje popušenih
+        </button>
+        <button data-tab="leaderboard" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2">
+          <i class="fa-solid fa-trophy"></i>
+          Leaderboard & Opponents
+        </button>
+        <button data-tab="matrix" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2">
+          <i class="fa-solid fa-table-cells"></i>
+          Matrix (16x16)
+        </button>
+        <button data-tab="log" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-amber-400 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition flex items-center gap-2">
+          <i class="fa-solid fa-plus-circle"></i>
+          Log Sub
+        </button>
+      </nav>
+
+      <!-- Global Stats -->
+      <div class="flex items-center gap-4 px-3 py-1 text-xs text-slate-400 border-t md:border-t-0 md:border-l border-slate-800 pt-2 md:pt-0">
+        <div>Total Submissions: <span id="statTotalSubs" class="text-amber-400 font-bold text-sm">0</span></div>
+      </div>
+    </div>
+
+    <!-- TAB VIEWS CONTAINER -->
+    <div id="tabContainer">
+
+      <!-- TAB 1: TABLICA SUBOVA -->
+      <div id="viewTablica" class="tab-view space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+            <div>
+              <h2 class="text-xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
+                <i class="fa-solid fa-ranking-star text-amber-400"></i>
+                Tablica Subova
+              </h2>
+            </div>
+
+            <!-- Date Filter for Tablica -->
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <label class="text-xs text-slate-400 whitespace-nowrap">Datum:</label>
+              <select id="tablicaDateFilter" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-amber-300 font-medium focus:outline-none focus:border-amber-500 w-full sm:w-auto">
+                <option value="ALL">Svi Datumi (Overall)</option>
+                <!-- Dynamic date options -->
+              </select>
+            </div>
+          </div>
+
+          <!-- Standings Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
+                  <th class="py-3.5 px-4 rounded-l-xl">Rang</th>
+                  <th class="py-3.5 px-4">Natjecatelj</th>
+                  <th class="py-3.5 px-4 text-center">Ukupno Sub-ova</th>
+                  <th class="py-3.5 px-4 text-center">Različitih Protivnika</th>
+                  <th class="py-3.5 px-4 text-center">Najdraža Žrtva</th>
+                  <th class="py-3.5 px-4 text-center rounded-r-xl">Najteži Protivnik</th>
+                </tr>
+              </thead>
+              <tbody id="tablicaTableBody" class="divide-y divide-slate-800/60 font-medium">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 5: TABLICA NAJMANJE POPUŠENIH -->
+      <div id="viewLeastTapped" class="tab-view hidden space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
+            <div>
+              <h2 class="text-xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
+                <i class="fa-solid fa-shield-halved text-amber-400"></i>
+                Tablica Najmanje Popušenih
+              </h2>
+            </div>
+
+            <!-- Date Filter for Least Tapped -->
+            <div class="flex items-center gap-2 w-full sm:w-auto">
+              <label class="text-xs text-slate-400 whitespace-nowrap">Datum:</label>
+              <select id="leastTappedDateFilter" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-amber-300 font-medium focus:outline-none focus:border-amber-500 w-full sm:w-auto">
+                <option value="ALL">Svi Datumi (Overall)</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
+                  <th class="py-3.5 px-4 rounded-l-xl">Rang</th>
+                  <th class="py-3.5 px-4">Natjecatelj</th>
+                  <th class="py-3.5 px-4 text-center">popušeno</th>
+                  <th class="py-3.5 px-4 text-center rounded-r-xl">najteži protivnik</th>
+                </tr>
+              </thead>
+              <tbody id="leastTappedTableBody" class="divide-y divide-slate-800/60 font-medium">
+                <!-- Dynamically generated rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- TAB 2: LEADERBOARD & OPPONENT CARDS -->
+      <div id="viewLeaderboard" class="tab-view hidden space-y-4">
+        <!-- Search & Filter Bar -->
+        <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900 p-3 rounded-2xl border border-slate-800">
+          <div class="relative w-full sm:w-64">
+            <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
+            <input type="text" id="searchCompetitor" placeholder="Pretraži natjecatelja..." class="w-full bg-slate-950 border border-slate-800 rounded-xl pl-8 pr-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+          </div>
+          <div class="text-xs text-slate-400 flex items-center gap-2">
+            <span class="text-amber-400"><i class="fa-solid fa-circle-info"></i></span>
+            Klikni na protivničku pločicu za pregled svih sub-ova
+          </div>
+        </div>
+
+        <!-- Leaderboard Cards Container -->
+        <div id="leaderboardList" class="space-y-3">
+          <!-- Rendered dynamically -->
+        </div>
+      </div>
+
+      <!-- TAB 3: 16x16 HEAD-TO-HEAD MATRIX -->
+      <div id="viewMatrix" class="tab-view hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
+        <div class="mb-4">
+          <h3 class="text-lg font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
+            <i class="fa-solid fa-chess-board text-amber-400"></i>
+            Head-to-Head Matrix (16x16)
+          </h3>
+          <p class="text-xs text-slate-400">Redak označava pobjednika (Submitter). Stupac označava poraženog (Tapped).</p>
+        </div>
+
+        <div class="overflow-x-auto max-w-full">
+          <table class="w-full text-xs text-center border-collapse">
+            <thead>
+              <tr class="border-b border-slate-800 text-slate-400" id="matrixHeader">
+                <!-- Header columns generated dynamically -->
+              </tr>
+            </thead>
+            <tbody id="matrixBody" class="divide-y divide-slate-800/50">
+              <!-- Matrix rows generated dynamically -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- TAB 4: LOG SUBMISSION FORM (PROTECTED) -->
+      <div id="viewLog" class="tab-view hidden max-w-xl mx-auto">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
+          <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
+            <div>
+              <h2 class="text-lg font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
+                <i class="fa-solid fa-hand-fist text-amber-400"></i>
+                Unesi Submission
+              </h2>
+              <p class="text-xs text-slate-400">Zabilježi predaju na treningu</p>
+            </div>
+            <span class="text-xs bg-amber-500/10 text-amber-400 border border-amber-500/30 px-2.5 py-1 rounded-lg font-semibold">6am NOGI</span>
+          </div>
+
+          <form id="subForm" class="space-y-5">
+            <!-- Submitter (Winner) -->
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Pobjednik (Submitter)</label>
+              <div class="relative">
+                <select id="formSubmitter" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-slate-200 focus:outline-none focus:border-amber-500 appearance-none font-medium">
+                  <!-- Dynamic Options -->
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+                  <i class="fa-solid fa-chevron-down text-xs"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Opponent (Victim) -->
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Protivnik (Predao)</label>
+              <div class="relative">
+                <select id="formVictim" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-slate-200 focus:outline-none focus:border-amber-500 appearance-none font-medium">
+                  <!-- Dynamic Options -->
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+                  <i class="fa-solid fa-chevron-down text-xs"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Date Selection -->
+            <div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Datum Treninga</label>
+              <div class="relative">
+                <select id="formDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-amber-300 font-semibold focus:outline-none focus:border-amber-500 appearance-none">
+                  <!-- Dynamic 12 Dates -->
+                </select>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+                  <i class="fa-solid fa-calendar-day text-xs"></i>
+                </div>
+              </div>
+            </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-amber-500/10 transition transform active:scale-95 uppercase tracking-wider text-sm flex items-center justify-center gap-2">
+              <i class="fa-solid fa-plus-circle text-lg"></i>
+              Spremi Submission
+            </button>
+          </form>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- ADMIN PIN MODAL -->
+  <div id="pinModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl space-y-5 text-center">
+      <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-shield-halved"></i>
+      </div>
+      <div>
+        <h3 class="font-display uppercase text-white font-bold text-lg">Admin Autorizacija</h3>
+        <p class="text-xs text-slate-400 mt-1">Unesi Admin PIN za unos ili brisanje (Zadani PIN: 1234)</p>
+      </div>
+
+      <form id="pinForm" class="space-y-4">
+        <input type="password" id="pinInput" maxlength="6" placeholder="Unesi PIN (npr. 1234)" autofocus class="w-full text-center tracking-widest text-lg bg-slate-950 border border-slate-800 rounded-xl py-3 text-white focus:outline-none focus:border-amber-500">
+        <div class="flex gap-2">
+          <button type="button" id="closePinModal" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Potvrdi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- MATCH DETAILS MODAL -->
+  <div id="matchModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 id="modalTitle" class="font-display uppercase text-white font-bold text-base">Detalji Dvoboja</h3>
+        <button id="closeModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <div id="modalMatchList" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs">
+        <!-- Dynamic match list -->
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-amber-500/50 text-slate-100 px-4 py-3 rounded-xl shadow-2xl transition transform translate-y-20 opacity-0 flex items-center gap-3 z-50">
+    <i id="toastIcon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
+    <span id="toastMsg" class="text-xs font-medium">Uspješno spremljeno</span>
+  </div>
+
+  <!-- FIREBASE & APP SCRIPT -->
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // 16 COMPETITORS LIST
+    const COMPETITORS = [
+      "Markulin", "Tin", "Hrvoje", "Marko", "Martin", "Jakov", 
+      "Peša", "Ante", "Nikola", "Denis", "Vulkanizer je gay", 
+      "Davor", "Dean", "Fiškal", "Gedžo", "Matija"
+    ];
+
+    // 12 SPECIFIC DATES
+    const DATES = [
+      "22.09.", "24.09.", "29.09.", "01.10.", 
+      "06.10.", "08.10.", "13.10.", "15.10.", 
+      "20.10.", "22.10.", "27.10.", "29.10."
+    ];
+
+    // ADMIN SECURITY
+    const DEFAULT_PIN = "1234";
+    let isAdminAuthenticated = false;
+
+    // FIREBASE STATE
+    const appId = typeof __app_id !== 'undefined' ? __app_id : '6am-nogi-sub-challenge';
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
+      apiKey: "demo-api-key",
+      authDomain: "demo-app.firebaseapp.com",
+      projectId: "demo-app",
+      storageBucket: "demo-app.appspot.com",
+      messagingSenderId: "123456789",
+      appId: "1:123456789:web:abcdef"
+    };
+
+    let db = null;
+    let auth = null;
+    let logs = [];
+    let isCloudSyncActive = false;
+    let pendingAction = null; // Callback after PIN validation
+
+    const COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'submissions'];
+
+    window.addEventListener('DOMContentLoaded', async () => {
+      initFormSelects();
+      setupEventListeners();
+
+      // Initialize Firebase
+      try {
+        const app = initializeApp(firebaseConfig);
+        auth = getAuth(app);
+        db = getFirestore(app);
+
+        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+          await signInWithCustomToken(auth, __initial_auth_token);
+        } else {
+          await signInAnonymously(auth);
+        }
+
+        const subCol = collection(db, ...COLLECTION_PATH);
+        onSnapshot(subCol, (snapshot) => {
+          logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          isCloudSyncActive = true;
+          updateSyncBadge(true);
+          renderAll();
+        }, (error) => {
+          console.warn("Firestore error, switching to local mode:", error);
+          fallbackToLocalStorage();
+        });
+
+      } catch (err) {
+        console.warn("Firebase failed to load, switching to local mode:", err);
+        fallbackToLocalStorage();
+      }
+    });
+
+    function fallbackToLocalStorage() {
+      isCloudSyncActive = false;
+      updateSyncBadge(false);
+      logs = JSON.parse(localStorage.getItem('nogi_submissions_logs_v2')) || [];
+      renderAll();
+    }
+
+    function updateSyncBadge(online) {
+      const badge = document.getElementById('syncBadge');
+      if (online) {
+        badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase font-semibold flex items-center gap-1";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live Sync`;
+      } else {
+        badge.className = "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase font-semibold flex items-center gap-1";
+        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local Mode`;
+      }
+    }
+
+    function initFormSelects() {
+      const submitterSelect = document.getElementById('formSubmitter');
+      const victimSelect = document.getElementById('formVictim');
+      const dateSelect = document.getElementById('formDate');
+      const tablicaFilter = document.getElementById('tablicaDateFilter');
+      const leastTappedFilter = document.getElementById('leastTappedDateFilter');
+
+      submitterSelect.innerHTML = '';
+      victimSelect.innerHTML = '';
+      dateSelect.innerHTML = '';
+      if (tablicaFilter) tablicaFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
+      if (leastTappedFilter) leastTappedFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
+
+      COMPETITORS.forEach(comp => {
+        submitterSelect.add(new Option(comp, comp));
+        victimSelect.add(new Option(comp, comp));
+      });
+
+      // Default Submitter & Victim
+      submitterSelect.value = COMPETITORS[0];
+      victimSelect.value = COMPETITORS[1];
+
+      DATES.forEach(d => {
+        dateSelect.add(new Option(d, d));
+        if (tablicaFilter) tablicaFilter.add(new Option(d, d));
+        if (leastTappedFilter) leastTappedFilter.add(new Option(d, d));
+      });
+    }
+
+    function setupEventListeners() {
+      // Form submitter change listener
+      document.getElementById('formSubmitter')?.addEventListener('change', (e) => {
+        const selectedSubmitter = e.target.value;
+        const victimSelect = document.getElementById('formVictim');
+        const currentVictim = victimSelect.value;
+
+        victimSelect.innerHTML = '';
+        COMPETITORS.filter(c => c !== selectedSubmitter).forEach(comp => {
+          victimSelect.add(new Option(comp, comp));
+        });
+
+        if (currentVictim !== selectedSubmitter) {
+          victimSelect.value = currentVictim;
+        }
+      });
+
+      // Form Submission
+      document.getElementById('subForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        requireAdminPIN(() => handleFormSubmit());
+      });
+
+      // Admin Lock Buttons
+      const toggleAdmin = () => {
+        if (isAdminAuthenticated) {
+          isAdminAuthenticated = false;
+          updateAdminUI();
+          showToast("Admin session locked.");
+        } else {
+          requireAdminPIN(() => {});
+        }
+      };
+      document.getElementById('adminStatusBtnDesktop')?.addEventListener('click', toggleAdmin);
+      document.getElementById('adminStatusBtnMobile')?.addEventListener('click', toggleAdmin);
+
+      // PIN Modal Form
+      document.getElementById('pinForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const input = document.getElementById('pinInput').value;
+        if (input === DEFAULT_PIN) {
+          isAdminAuthenticated = true;
+          updateAdminUI();
+          document.getElementById('pinModal').classList.add('hidden');
+          document.getElementById('pinInput').value = '';
+          showToast("Admin access unlocked!");
+          if (pendingAction) {
+            pendingAction();
+            pendingAction = null;
+          }
+        } else {
+          showToast("Pogrešan PIN!", true);
+          document.getElementById('pinInput').value = '';
+        }
+      });
+
+      document.getElementById('closePinModal')?.addEventListener('click', () => {
+        document.getElementById('pinModal').classList.add('hidden');
+        pendingAction = null;
+      });
+
+      // Filters
+      document.getElementById('searchCompetitor')?.addEventListener('input', renderLeaderboard);
+      document.getElementById('tablicaDateFilter')?.addEventListener('change', renderTablica);
+      document.getElementById('leastTappedDateFilter')?.addEventListener('change', renderLeastTapped);
+
+      // Modal Close
+      document.getElementById('closeModal')?.addEventListener('click', () => {
+        document.getElementById('matchModal').classList.add('hidden');
+      });
+
+      // Tab Switches
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tabName = btn.getAttribute('data-tab');
+          
+          document.querySelectorAll('.tab-btn').forEach(b => {
+            b.classList.remove('bg-amber-500', 'text-slate-950', 'font-semibold', 'shadow-md');
+            b.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800');
+          });
+
+          btn.classList.add('bg-amber-500', 'text-slate-950', 'font-semibold', 'shadow-md');
+          btn.classList.remove('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800');
+
+          document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+          
+          if (tabName === 'tablica') document.getElementById('viewTablica')?.classList.remove('hidden');
+          if (tabName === 'leastTapped') document.getElementById('viewLeastTapped')?.classList.remove('hidden');
+          if (tabName === 'leaderboard') document.getElementById('viewLeaderboard')?.classList.remove('hidden');
+          if (tabName === 'matrix') document.getElementById('viewMatrix')?.classList.remove('hidden');
+          if (tabName === 'log') document.getElementById('viewLog')?.classList.remove('hidden');
+        });
+      });
+    }
+
+    function requireAdminPIN(callback) {
+      if (isAdminAuthenticated) {
+        callback();
+      } else {
+        pendingAction = callback;
+        document.getElementById('pinModal').classList.remove('hidden');
+        document.getElementById('pinInput').focus();
+      }
+    }
+
+    function updateAdminUI() {
+      const desktopBtn = document.getElementById('adminStatusBtnDesktop');
+      const mobileBtn = document.getElementById('adminStatusBtnMobile');
+      const btnText = document.getElementById('adminBtnText');
+      const btnTextMobile = document.getElementById('adminBtnTextMobile');
+      const lockIcon = document.getElementById('adminLockIcon');
+
+      if (isAdminAuthenticated) {
+        if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
+        if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
+        if (lockIcon) lockIcon.className = "fa-solid fa-unlock text-emerald-400";
+        if (btnText) btnText.textContent = "Admin Unlocked";
+        if (btnTextMobile) btnTextMobile.textContent = "Unlocked";
+      } else {
+        if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600";
+        if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400";
+        if (lockIcon) lockIcon.className = "fa-solid fa-lock text-amber-400";
+        if (btnText) btnText.textContent = "Locked (PIN: 1234)";
+        if (btnTextMobile) btnTextMobile.textContent = "Admin";
+      }
+    }
+
+    async function handleFormSubmit() {
+      const submitter = document.getElementById('formSubmitter').value;
+      const victim = document.getElementById('formVictim').value;
+      const date = document.getElementById('formDate').value;
+
+      if (submitter === victim) {
+        showToast("Pobjednik i protivnik ne mogu biti isti!", true);
+        return;
+      }
+
+      const logData = {
+        submitter,
+        victim,
+        date,
+        createdAt: new Date().toISOString()
+      };
+
+      if (isCloudSyncActive && db) {
+        try {
+          await addDoc(collection(db, ...COLLECTION_PATH), logData);
+          showToast(`${submitter} predala/o ${victim}!`);
+        } catch (err) {
+          showToast("Greška pri spremanju u oblak", true);
+        }
+      } else {
+        logData.id = 'local_' + Date.now();
+        logs.unshift(logData);
+        saveLocalLogs();
+        renderAll();
+        showToast(`Spremljeno lokalno: ${submitter} -> ${victim}`);
+      }
+    }
+
+    async function deleteLogItem(id) {
+      if (isCloudSyncActive && db) {
+        try {
+          await deleteDoc(doc(db, ...COLLECTION_PATH, id));
+          showToast("Submission obrisan.");
+        } catch (err) {
+          showToast("Greška pri brisanju", true);
+        }
+      } else {
+        logs = logs.filter(l => l.id !== id);
+        saveLocalLogs();
+        renderAll();
+        showToast("Submission obrisan.");
+      }
+      document.getElementById('matchModal').classList.add('hidden');
+    }
+
+    function saveLocalLogs() {
+      localStorage.setItem('nogi_submissions_logs_v2', JSON.stringify(logs));
+    }
+
+    function renderAll() {
+      document.getElementById('statTotalSubs').textContent = logs.length;
+      renderTablica();
+      renderLeastTapped();
+      renderLeaderboard();
+      renderMatrix();
+    }
+
+    function renderTablica() {
+      const filterDate = document.getElementById('tablicaDateFilter')?.value || 'ALL';
+      const tbody = document.getElementById('tablicaTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const filteredLogs = filterDate === 'ALL' ? logs : logs.filter(l => l.date === filterDate);
+
+      const stats = COMPETITORS.map(name => {
+        const userWins = filteredLogs.filter(l => l.submitter === name);
+        const totalWins = userWins.length;
+        
+        // Count unique victims
+        const uniqueVictims = new Set(userWins.map(l => l.victim)).size;
+
+        // Favorite Victim (opponent submitted most times)
+        let maxVictimSubs = 0;
+        let favoriteVictims = [];
+        COMPETITORS.forEach(opp => {
+          if (opp !== name) {
+            const count = userWins.filter(l => l.victim === opp).length;
+            if (count > maxVictimSubs && count > 0) {
+              maxVictimSubs = count;
+              favoriteVictims = [`${opp} (${count})`];
+            } else if (count === maxVictimSubs && count > 0) {
+              favoriteVictims.push(`${opp} (${count})`);
+            }
+          }
+        });
+        const favoriteVictimText = favoriteVictims.length > 0 ? favoriteVictims.join(', ') : '<span class="text-slate-500">-</span>';
+
+        // Toughest Opponent (opponent against whom player has fewest subs, prioritized by who submitted player most)
+        let opponentStats = COMPETITORS.filter(opp => opp !== name).map(opp => {
+          const subsAgainstOpp = userWins.filter(l => l.victim === opp).length;
+          const subsConcededToOpp = filteredLogs.filter(l => l.submitter === opp && l.victim === name).length;
+          return { opp, subsAgainstOpp, subsConcededToOpp };
+        });
+
+        // Sort: fewest subs made against opp, then most subs conceded to opp
+        opponentStats.sort((a, b) => a.subsAgainstOpp - b.subsAgainstOpp || b.subsConcededToOpp - a.subsConcededToOpp);
+
+        const toughest = opponentStats[0];
+        let toughestText = '<span class="text-slate-500">-</span>';
+        if (toughest) {
+          if (toughest.subsConcededToOpp > 0) {
+            toughestText = `<span class="text-rose-400 font-semibold">${toughest.opp}</span> <span class="text-slate-500 text-xs">(${toughest.subsAgainstOpp} sub / -${toughest.subsConcededToOpp})</span>`;
+          } else {
+            toughestText = `<span class="text-slate-300 font-medium">${toughest.opp}</span> <span class="text-slate-500 text-xs">(${toughest.subsAgainstOpp})</span>`;
+          }
+        }
+
+        return { name, totalWins, uniqueVictims, favoriteVictimText, toughestText };
+      });
+
+      // Sort by total wins desc, then unique victims desc
+      stats.sort((a, b) => b.totalWins - a.totalWins || b.uniqueVictims - a.uniqueVictims);
+
+      stats.forEach((player, idx) => {
+        const rank = idx + 1;
+        let rankBadge = `<span class="text-slate-400 font-bold">#${rank}</span>`;
+        let rowBg = "hover:bg-slate-800/40";
+
+        if (rank === 1) {
+          rankBadge = `<span class="w-7 h-7 rounded-lg bg-amber-500 text-slate-950 font-extrabold flex items-center justify-center text-xs shadow-md shadow-amber-500/20"><i class="fa-solid fa-crown"></i></span>`;
+          rowBg = "bg-amber-500/5 hover:bg-amber-500/10";
+        } else if (rank === 2) {
+          rankBadge = `<span class="w-7 h-7 rounded-lg bg-slate-300 text-slate-950 font-extrabold flex items-center justify-center text-xs">2</span>`;
+        } else if (rank === 3) {
+          rankBadge = `<span class="w-7 h-7 rounded-lg bg-amber-700 text-slate-100 font-extrabold flex items-center justify-center text-xs">3</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = `${rowBg} transition border-b border-slate-800/40`;
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-bold">${rankBadge}</td>
+          <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
+          <td class="py-3 px-4 text-center">
+            <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-amber-400 font-bold text-sm">
+              ${player.totalWins}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-center text-slate-300">${player.uniqueVictims} / 15</td>
+          <td class="py-3 px-4 text-center text-xs text-amber-300/90 font-medium">${player.favoriteVictimText}</td>
+          <td class="py-3 px-4 text-center text-xs">${player.toughestText}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderLeastTapped() {
+      const filterDate = document.getElementById('leastTappedDateFilter')?.value || 'ALL';
+      const tbody = document.getElementById('leastTappedTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const filteredLogs = filterDate === 'ALL' ? logs : logs.filter(l => l.date === filterDate);
+
+      const stats = COMPETITORS.map(name => {
+        const userLosses = filteredLogs.filter(l => l.victim === name);
+        const totalLosses = userLosses.length;
+        const totalWins = filteredLogs.filter(l => l.submitter === name).length;
+
+        // Top executioner (who submitted this player most)
+        let maxExecutionCount = 0;
+        let executioners = [];
+        COMPETITORS.forEach(opp => {
+          if (opp !== name) {
+            const count = userLosses.filter(l => l.submitter === opp).length;
+            if (count > maxExecutionCount && count > 0) {
+              maxExecutionCount = count;
+              executioners = [`${opp} (${count})`];
+            } else if (count === maxExecutionCount && count > 0) {
+              executioners.push(`${opp} (${count})`);
+            }
+          }
+        });
+
+        const executionerText = executioners.length > 0 ? executioners.join(', ') : '<span class="text-emerald-400 font-medium">Nitko (Neporažen)</span>';
+
+        return { name, totalLosses, totalWins, executionerText };
+      });
+
+      // Sort by fewest losses ascending, then by most total wins desc
+      stats.sort((a, b) => a.totalLosses - b.totalLosses || b.totalWins - a.totalWins);
+
+      stats.forEach((player, idx) => {
+        const rank = idx + 1;
+        let rankBadge = `<span class="text-slate-400 font-bold">#${rank}</span>`;
+        let rowBg = "hover:bg-slate-800/40";
+
+        if (rank === 1) {
+          rankBadge = `<span class="w-7 h-7 rounded-lg bg-emerald-500 text-slate-950 font-extrabold flex items-center justify-center text-xs shadow-md shadow-emerald-500/20"><i class="fa-solid fa-shield-halved"></i></span>`;
+          rowBg = "bg-emerald-500/5 hover:bg-emerald-500/10";
+        } else if (rank === 2) {
+          rankBadge = `<span class="w-7 h-7 rounded-lg bg-slate-300 text-slate-950 font-extrabold flex items-center justify-center text-xs">2</span>`;
+        } else if (rank === 3) {
+          rankBadge = `<span class="w-7 h-7 rounded-lg bg-amber-700 text-slate-100 font-extrabold flex items-center justify-center text-xs">3</span>`;
+        }
+
+        const tr = document.createElement('tr');
+        tr.className = `${rowBg} transition border-b border-slate-800/40`;
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-bold">${rankBadge}</td>
+          <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
+          <td class="py-3 px-4 text-center">
+            <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 ${player.totalLosses === 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold text-sm">
+              ${player.totalLosses}
+            </span>
+          </td>
+          <td class="py-3 px-4 text-center text-xs font-medium text-slate-300">${player.executionerText}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderLeaderboard() {
+      const searchTerm = document.getElementById('searchCompetitor').value.toLowerCase();
+      
+      const stats = COMPETITORS.map(name => {
+        const userWins = logs.filter(l => l.submitter === name);
+        const totalWins = userWins.length;
+
+        const opponentMap = {};
+        COMPETITORS.forEach(opp => {
+          if (opp !== name) {
+            opponentMap[opp] = userWins.filter(l => l.victim === opp).length;
+          }
+        });
+
+        return { name, totalWins, opponentMap };
+      });
+
+      stats.sort((a, b) => b.totalWins - a.totalWins);
+
+      const container = document.getElementById('leaderboardList');
+      container.innerHTML = '';
+
+      stats
+        .filter(s => s.name.toLowerCase().includes(searchTerm))
+        .forEach((player, index) => {
+          const rank = index + 1;
+          
+          let rankBadge = `<span class="w-8 h-8 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center font-bold text-sm">#${rank}</span>`;
+          let borderHighlight = "border-slate-800";
+          
+          if (rank === 1) {
+            rankBadge = `<span class="w-8 h-8 rounded-xl bg-gradient-to-tr from-amber-400 to-yellow-600 text-slate-950 flex items-center justify-center font-bold text-base shadow-lg shadow-amber-500/20"><i class="fa-solid fa-crown"></i></span>`;
+            borderHighlight = "border-amber-500/40 bg-slate-900/90";
+          } else if (rank === 2) {
+            rankBadge = `<span class="w-8 h-8 rounded-xl bg-slate-300 text-slate-950 flex items-center justify-center font-bold text-sm shadow">#2</span>`;
+          } else if (rank === 3) {
+            rankBadge = `<span class="w-8 h-8 rounded-xl bg-amber-700 text-slate-100 flex items-center justify-center font-bold text-sm shadow">#3</span>`;
+          }
+
+          let opponentChipsHtml = '';
+          COMPETITORS.filter(opp => opp !== player.name).forEach(oppName => {
+            const count = player.opponentMap[oppName] || 0;
+            const hasWin = count > 0;
+
+            opponentChipsHtml += `
+              <button onclick="window.openMatchDetails('${player.name}', '${oppName}')" 
+                      class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs transition ${hasWin ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20' : 'bg-slate-950/60 border-slate-800/80 text-slate-500 hover:border-slate-700'}">
+                <span class="font-medium truncate max-w-[70px]">${oppName}</span>
+                <span class="ml-1.5 font-bold px-1.5 py-0.2 rounded ${hasWin ? 'bg-amber-500 text-slate-950 text-[11px]' : 'bg-slate-800 text-slate-600 text-[10px]'}">
+                  ${count}
+                </span>
+              </button>
+            `;
+          });
+
+          const card = document.createElement('div');
+          card.className = `bg-slate-900 border ${borderHighlight} rounded-2xl p-4 transition hover:border-slate-700 shadow-md`;
+          card.innerHTML = `
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div class="flex items-center space-x-3">
+                ${rankBadge}
+                <div>
+                  <h4 class="font-bold text-slate-100 text-base">${player.name}</h4>
+                  <p class="text-xs text-slate-400">6am NOGI Borac</p>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800/80 self-start sm:self-auto">
+                <i class="fa-solid fa-trophy text-amber-400 text-xs"></i>
+                <span class="text-xs uppercase text-slate-400 font-semibold">Sub-ovi:</span>
+                <span class="text-2xl font-extrabold text-amber-400">${player.totalWins}</span>
+              </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-slate-800/60">
+              <div class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider mb-2">Protivnici:</div>
+              <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-8 gap-2">
+                ${opponentChipsHtml}
+              </div>
+            </div>
+          `;
+          container.appendChild(card);
+        });
+    }
+
+    function renderMatrix() {
+      const header = document.getElementById('matrixHeader');
+      const body = document.getElementById('matrixBody');
+
+      header.innerHTML = `<th class="p-2 text-left sticky-col bg-slate-900 z-20">Submitter \\ Opponent</th>`;
+      COMPETITORS.forEach(c => {
+        header.innerHTML += `<th class="p-2 font-semibold text-slate-300 min-w-[45px]">${c.substring(0,3)}</th>`;
+      });
+
+      body.innerHTML = '';
+      COMPETITORS.forEach(sub => {
+        let rowHtml = `<tr class="hover:bg-slate-800/30 transition">`;
+        rowHtml += `<td class="p-2 font-semibold text-slate-200 text-left sticky-col bg-slate-900 border-r border-slate-800">${sub}</td>`;
+
+        COMPETITORS.forEach(vic => {
+          if (sub === vic) {
+            rowHtml += `<td class="p-2 bg-slate-950/40 text-slate-700 font-mono">-</td>`;
+          } else {
+            const matches = logs.filter(l => l.submitter === sub && l.victim === vic);
+            const count = matches.length;
+            
+            if (count > 0) {
+              rowHtml += `<td onclick="window.openMatchDetails('${sub}', '${vic}')" class="p-2 bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30 rounded cursor-pointer hover:bg-amber-500/30">${count}</td>`;
+            } else {
+              rowHtml += `<td class="p-2 text-slate-600 font-mono">0</td>`;
+            }
+          }
+        });
+
+        rowHtml += `</tr>`;
+        body.innerHTML += rowHtml;
+      });
+    }
+
+    window.openMatchDetails = function(submitter, victim) {
+      const matches = logs.filter(l => l.submitter === submitter && l.victim === victim);
+      const modal = document.getElementById('matchModal');
+      const title = document.getElementById('modalTitle');
+      const list = document.getElementById('modalMatchList');
+
+      title.textContent = `${submitter} vs ${victim} (${matches.length})`;
+      list.innerHTML = '';
+
+      if (matches.length === 0) {
+        list.innerHTML = `<p class="text-slate-500 py-2">Nema zabilježenih predaja.</p>`;
+      } else {
+        matches.forEach(m => {
+          const item = document.createElement('div');
+          item.className = "flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800";
+          item.innerHTML = `
+            <div>
+              <div class="font-semibold text-slate-200">${submitter} predala/o ${victim}</div>
+              <div class="text-[10px] text-amber-400 font-semibold">${m.date || 'Nema datuma'}</div>
+            </div>
+            <button onclick="window.requestDeleteLog('${m.id}')" class="text-rose-400 hover:text-rose-300 p-1">
+              <i class="fa-solid fa-trash-can text-sm"></i>
+            </button>
+          `;
+          list.appendChild(item);
+        });
+      }
+
+      modal.classList.remove('hidden');
+    };
+
+    window.requestDeleteLog = function(id) {
+      requireAdminPIN(() => deleteLogItem(id));
+    };
+
+    function showToast(msg, isError = false) {
+      const toast = document.getElementById('toast');
+      const toastMsg = document.getElementById('toastMsg');
+      const toastIcon = document.getElementById('toastIcon');
+      toastMsg.textContent = msg;
+      
+      if (isError) {
+        toast.className = "fixed bottom-5 right-5 bg-rose-900 border border-rose-500/50 text-slate-100 px-4 py-3 rounded-xl shadow-2xl transition transform translate-y-0 opacity-100 flex items-center gap-3 z-50";
+        toastIcon.className = "fa-solid fa-circle-exclamation text-rose-300 text-lg";
+      } else {
+        toast.className = "fixed bottom-5 right-5 bg-slate-800 border border-amber-500/50 text-slate-100 px-4 py-3 rounded-xl shadow-2xl transition transform translate-y-0 opacity-100 flex items-center gap-3 z-50";
+        toastIcon.className = "fa-solid fa-circle-check text-amber-400 text-lg";
+      }
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-20', 'opacity-0');
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
