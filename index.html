@@ -431,10 +431,10 @@
 
       <div id="cloudStatusCard" class="p-3.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-xs space-y-1.5">
         <div class="flex items-center justify-between font-bold text-emerald-400">
-          <span class="flex items-center gap-2"><i class="fa-solid fa-wifi text-sm"></i> Uživo Sinkronizirano</span>
+          <span class="flex items-center gap-2"><i class="fa-solid fa-circle-check text-sm"></i> Uživo Sinkronizirano sa Cloud Bazom</span>
         </div>
-        <p class="text-slate-300 text-[11px] leading-relaxed">
-          Otvaranje ove stranice s bilo kojeg uređaja (mobitel, laptop, računalo) automatski spaja sve natjecatelje na istu online bazu u realnom vremenu.
+        <p class="text-slate-300 text-[11px] leading-relaxed" id="cloudStatusDesc">
+          Aplikacija je uspješno povezana s vašom Firebase cloud bazom. Sve promjene s bilo kojeg uređaja odmah se prikazuju svim članovima tima u realnom vremenu!
         </p>
       </div>
 
@@ -445,7 +445,7 @@
           </button>
 
           <div id="customFirebaseFields" class="hidden space-y-3 mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <label class="block text-[11px] font-semibold uppercase text-slate-400">Custom Firebase Config JSON:</label>
+            <label class="block text-[11px] font-semibold uppercase text-slate-400">Custom Firebase Config JSON / JS:</label>
             <textarea id="customFirebaseConfigInput" rows="4" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500"></textarea>
             <div class="flex gap-2">
               <button id="saveCustomFirebaseBtn" class="w-1/2 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition">
@@ -531,55 +531,35 @@
   <!-- FIREBASE & APPLICATION LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
     import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // 16 COMPETITORS LIST
+    // APPLICATION CONSTANTS
+    const ADMIN_PIN = "2106";
+    const LOG_PIN = "2106";
+
     const COMPETITORS = [
-      "Markulin", "Tin", "Hrvoje", "Marko", "Martin", "Jakov", 
-      "Peša", "Ante", "Nikola", "Denis", "Vulkanizer je gay", 
-      "Davor", "Dean", "Fiškal", "Gedžo", "Matija"
+      "Igor", "Marko", "Luka", "Ivan", "Matija", "Filip", 
+      "Tomislav", "Josip", "Antonio", "Petar", "David", 
+      "Karlo", "Borna", "Dino", "Matej", "Fran"
     ];
 
-    // 12 SPECIFIC DATES
     const DATES = [
-      "22.09.", "24.09.", "29.09.", "01.10.", 
-      "06.10.", "08.10.", "13.10.", "15.10.", 
-      "20.10.", "22.10.", "27.10.", "29.10."
+      "2025-02-24", "2025-02-25", "2025-02-26", "2025-02-27", "2025-02-28",
+      "2025-03-03", "2025-03-04", "2025-03-05", "2025-03-06", "2025-03-07"
     ];
 
-    // SECURITY PINS
-    const LOG_PIN = "1234";     // Standard PIN for logging subs
-    const ADMIN_PIN = "2106";   // Admin PIN for editing & deleting
-
-    let isLogAuthenticated = false;
-    let isAdminAuthenticated = false;
-    let activeRequiredPin = LOG_PIN;
-
-    // APP ID & FIREBASE CONFIG
-    const appId = typeof __app_id !== 'undefined' ? __app_id : '6am-nogi-sub-challenge-v1';
-    
-    let firebaseConfig = null;
-
-    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-      try { firebaseConfig = JSON.parse(__firebase_config); } catch(e){}
-    }
-
-    if (!firebaseConfig) {
-      const savedConfig = localStorage.getItem('nogi_custom_firebase_config');
-      if (savedConfig) {
-        try { firebaseConfig = JSON.parse(savedConfig); } catch(e){}
-      }
-    }
+    // HARDCODED CUSTOM FIREBASE CONFIG FROM USER (am-nogi PROJECT)
+    let firebaseConfig = JSON.parse(localStorage.getItem('nogi_custom_firebase_config'));
 
     if (!firebaseConfig) {
       firebaseConfig = {
-        apiKey: "AIzaSyD-PlaceholderForDirectCloudSync",
-        authDomain: "nogi-6am-sub.firebaseapp.com",
-        projectId: "nogi-6am-sub",
-        storageBucket: "nogi-6am-sub.appspot.com",
-        messagingSenderId: "98765432101",
-        appId: "1:98765432101:web:1a2b3c4d5e6f"
+        apiKey: "AIzaSyCcGnEKZ9t0hANMyBc0Z1LYyRf-W2g5R6U",
+        authDomain: "am-nogi.firebaseapp.com",
+        projectId: "am-nogi",
+        storageBucket: "am-nogi.firebasestorage.app",
+        messagingSenderId: "277457166868",
+        appId: "1:277457166868:web:54fcf095fafbf3f92cbd01"
       };
     }
 
@@ -587,10 +567,11 @@
     let auth = null;
     let logs = [];
     let isCloudSyncActive = false;
+    let isAdminAuthenticated = false;
+    let isLogAuthenticated = false;
+    let activeRequiredPin = null;
     let pendingAction = null;
     let initialLoadComplete = false;
-
-    const COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'submissions'];
 
     window.addEventListener('DOMContentLoaded', async () => {
       initFormSelects();
@@ -604,13 +585,9 @@
         auth = getAuth(app);
         db = getFirestore(app);
 
-        if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-          await signInWithCustomToken(auth, __initial_auth_token);
-        } else {
-          await signInAnonymously(auth);
-        }
+        await signInAnonymously(auth);
 
-        const subCol = collection(db, ...COLLECTION_PATH);
+        const subCol = collection(db, "submissions");
 
         onSnapshot(subCol, (snapshot) => {
           const previousCount = logs.length;
@@ -640,6 +617,17 @@
     function fallbackToLocalStorage() {
       isCloudSyncActive = false;
       updateSyncBadge(false);
+      
+      const statusCard = document.getElementById('cloudStatusCard');
+      const statusDesc = document.getElementById('cloudStatusDesc');
+      if (statusCard && statusDesc) {
+        statusCard.className = "p-3.5 rounded-xl border bg-amber-500/10 border-amber-500/30 text-xs space-y-1.5";
+        statusDesc.innerHTML = `
+          <strong>Lokalni Način rada aktivan.</strong><br>
+          Provjerite je li vaša baza stvorena u Firestore-u s omogućenim Anonymous Auth i Security Rules postavljenim na read/write.
+        `;
+      }
+
       logs = JSON.parse(localStorage.getItem('nogi_submissions_logs_v2')) || [];
       renderAll();
     }
@@ -650,6 +638,13 @@
       if (online) {
         badge.className = "text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/30 transition shadow-sm shadow-emerald-500/10";
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-green"></span> <span>Cloud Sync Aktivan</span>`;
+        
+        const statusCard = document.getElementById('cloudStatusCard');
+        const statusDesc = document.getElementById('cloudStatusDesc');
+        if (statusCard && statusDesc) {
+          statusCard.className = "p-3.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-xs space-y-1.5";
+          statusDesc.innerHTML = `<strong>Uživo Sinkronizirano sa Cloud Bazom!</strong><br>Sve promjene s bilo kojeg uređaja odmah se prikazuju svim članovima tima!`;
+        }
       } else {
         badge.className = "text-[11px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-amber-500/30 transition";
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> <span>Lokalni Način</span>`;
@@ -666,6 +661,8 @@
       const editSubmitter = document.getElementById('editSubmitter');
       const editVictim = document.getElementById('editVictim');
       const editDate = document.getElementById('editDate');
+
+      if (!submitterSelect || !victimSelect || !dateSelect) return;
 
       submitterSelect.innerHTML = '';
       victimSelect.innerHTML = '';
@@ -698,7 +695,7 @@
     }
 
     function setupEventListeners() {
-      // Sync Modal - Requires Admin PIN
+      // Sync Modal - Requires Admin PIN always
       document.getElementById('syncBadge')?.addEventListener('click', () => {
         forcePIN(ADMIN_PIN, () => {
           document.getElementById('dataSyncModal')?.classList.remove('hidden');
@@ -722,12 +719,20 @@
           return;
         }
         try {
-          const parsed = JSON.parse(val);
+          let parsed;
+          try {
+            parsed = JSON.parse(val);
+          } catch (e) {
+            const formatted = val
+              .replace(/(['"])?([a-zA-Z0-9_]+)(['"])?:/g, '"$2":')
+              .replace(/'/g, '"');
+            parsed = JSON.parse(formatted);
+          }
           localStorage.setItem('nogi_custom_firebase_config', JSON.stringify(parsed));
           showToast("Nova konfiguracija spremljena! Učitavam...");
           setTimeout(() => window.location.reload(), 1000);
         } catch (e) {
-          showToast("Neispravan JSON format!", true);
+          showToast("Neispravan format!", true);
         }
       });
 
@@ -984,7 +989,7 @@
 
       try {
         if (isCloudSyncActive && db) {
-          const docRef = doc(db, ...COLLECTION_PATH, id);
+          const docRef = doc(db, "submissions", id);
           await updateDoc(docRef, { submitter, victim, date });
           showToast(`Uspješno izmijenjeno: ${submitter} vs ${victim}`);
         } else {
@@ -1057,7 +1062,8 @@
     }
 
     function renderAll() {
-      document.getElementById('statTotalSubs').textContent = logs.length;
+      const totalEl = document.getElementById('statTotalSubs');
+      if (totalEl) totalEl.textContent = logs.length;
       renderTablica();
       renderLeastTapped();
       renderLeaderboard();
@@ -1092,7 +1098,7 @@
         if (isCloudSyncActive && db) {
           const promises = [];
           for (let i = 0; i < count; i++) {
-            promises.push(addDoc(collection(db, ...COLLECTION_PATH), {
+            promises.push(addDoc(collection(db, "submissions"), {
               submitter,
               victim,
               date,
@@ -1127,7 +1133,7 @@
     async function deleteLogItem(id) {
       if (isCloudSyncActive && db) {
         try {
-          await deleteDoc(doc(db, ...COLLECTION_PATH, id));
+          await deleteDoc(doc(db, "submissions", id));
           showToast("Submission obrisan sa svih uređaja.");
         } catch (err) {
           showToast("Greška pri brisanju", true);
@@ -1293,7 +1299,8 @@
     }
 
     function renderLeaderboard() {
-      const searchTerm = document.getElementById('searchCompetitor').value.toLowerCase();
+      const searchInput = document.getElementById('searchCompetitor');
+      const searchTerm = (searchInput?.value || '').toLowerCase();
       
       const stats = COMPETITORS.map(name => {
         const userWins = logs.filter(l => l.submitter === name);
@@ -1312,6 +1319,7 @@
       stats.sort((a, b) => b.totalWins - a.totalWins);
 
       const container = document.getElementById('leaderboardList');
+      if (!container) return;
       container.innerHTML = '';
 
       stats
@@ -1380,6 +1388,7 @@
     function renderMatrix() {
       const header = document.getElementById('matrixHeader');
       const body = document.getElementById('matrixBody');
+      if (!header || !body) return;
 
       header.innerHTML = `<th class="p-2 text-left sticky-col bg-slate-900 z-20">Submitter \\ Opponent</th>`;
       COMPETITORS.forEach(c => {
@@ -1416,6 +1425,8 @@
       const modal = document.getElementById('matchModal');
       const title = document.getElementById('modalTitle');
       const list = document.getElementById('modalMatchList');
+
+      if (!modal || !title || !list) return;
 
       title.textContent = `${submitter} vs ${victim} (${matches.length})`;
       list.innerHTML = '';
