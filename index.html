@@ -339,6 +339,39 @@
     </div>
   </div>
 
+  <!-- SUB COUNT MODAL -->
+  <div id="subCountModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl space-y-5 text-center">
+      <div class="w-12 h-12 bg-amber-500/10 border border-amber-500/30 text-amber-400 rounded-2xl flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-calculator"></i>
+      </div>
+      <div>
+        <h3 class="font-display uppercase text-white font-bold text-lg">Broj Submissiona</h3>
+        <p id="subCountModalSubtitle" class="text-xs text-slate-400 mt-1">Koliko puta je pobjednik prisilio protivnika na predaju?</p>
+      </div>
+
+      <form id="subCountForm" class="space-y-4">
+        <!-- Quick selection pills -->
+        <div class="flex justify-center gap-1.5 mb-1">
+          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="1">1x</button>
+          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="2">2x</button>
+          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="3">3x</button>
+          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="4">4x</button>
+          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="5">5x</button>
+        </div>
+
+        <div>
+          <input type="number" id="subCountInput" min="1" max="20" value="1" required class="w-full text-center tracking-widest text-xl font-bold bg-slate-950 border border-slate-800 rounded-xl py-2.5 text-amber-400 focus:outline-none focus:border-amber-500">
+        </div>
+
+        <div class="flex gap-2">
+          <button type="button" id="closeSubCountModal" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Spremi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- MATCH DETAILS MODAL -->
   <div id="matchModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center hidden p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
@@ -501,7 +534,34 @@
       // Form Submission
       document.getElementById('subForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
-        requireAdminPIN(() => handleFormSubmit());
+        const submitter = document.getElementById('formSubmitter').value;
+        const victim = document.getElementById('formVictim').value;
+
+        if (submitter === victim) {
+          showToast("Pobjednik i protivnik ne mogu biti isti!", true);
+          return;
+        }
+
+        requireAdminPIN(() => openSubCountModal());
+      });
+
+      // Sub count modal quick select buttons
+      document.querySelectorAll('.sub-count-pill').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const val = btn.getAttribute('data-val');
+          const input = document.getElementById('subCountInput');
+          if (input && val) input.value = val;
+        });
+      });
+
+      document.getElementById('closeSubCountModal')?.addEventListener('click', () => {
+        document.getElementById('subCountModal')?.classList.add('hidden');
+      });
+
+      document.getElementById('subCountForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        document.getElementById('subCountModal')?.classList.add('hidden');
+        handleFormSubmit();
       });
 
       // Admin Lock Buttons
@@ -586,6 +646,17 @@
       }
     }
 
+    function openSubCountModal() {
+      const submitter = document.getElementById('formSubmitter').value;
+      const victim = document.getElementById('formVictim').value;
+      const subtitle = document.getElementById('subCountModalSubtitle');
+      if (subtitle) {
+        subtitle.textContent = `Koliko je puta predao ${victim}?`;
+      }
+      document.getElementById('subCountInput').value = 1;
+      document.getElementById('subCountModal')?.classList.remove('hidden');
+    }
+
     function updateAdminUI() {
       const desktopBtn = document.getElementById('adminStatusBtnDesktop');
       const mobileBtn = document.getElementById('adminStatusBtnMobile');
@@ -612,32 +683,48 @@
       const submitter = document.getElementById('formSubmitter').value;
       const victim = document.getElementById('formVictim').value;
       const date = document.getElementById('formDate').value;
+      const countInput = document.getElementById('subCountInput');
+      const count = Math.max(1, parseInt(countInput?.value || '1', 10));
 
       if (submitter === victim) {
         showToast("Pobjednik i protivnik ne mogu biti isti!", true);
         return;
       }
 
-      const logData = {
-        submitter,
-        victim,
-        date,
-        createdAt: new Date().toISOString()
-      };
-
-      if (isCloudSyncActive && db) {
-        try {
-          await addDoc(collection(db, ...COLLECTION_PATH), logData);
-          showToast(`${submitter} predala/o ${victim}!`);
-        } catch (err) {
-          showToast("Greška pri spremanju u oblak", true);
+      try {
+        if (isCloudSyncActive && db) {
+          const promises = [];
+          for (let i = 0; i < count; i++) {
+            promises.push(addDoc(collection(db, ...COLLECTION_PATH), {
+              submitter,
+              victim,
+              date,
+              createdAt: new Date().toISOString()
+            }));
+          }
+          await Promise.all(promises);
+          showToast(`Spremljeno (${count}x): ${submitter} -> ${victim}`);
+        } else {
+          for (let i = 0; i < count; i++) {
+            logs.unshift({
+              id: 'local_' + Date.now() + '_' + i,
+              submitter,
+              victim,
+              date,
+              createdAt: new Date().toISOString()
+            });
+          }
+          saveLocalLogs();
+          renderAll();
+          showToast(`Spremljeno lokalno (${count}x): ${submitter} -> ${victim}`);
         }
-      } else {
-        logData.id = 'local_' + Date.now();
-        logs.unshift(logData);
-        saveLocalLogs();
-        renderAll();
-        showToast(`Spremljeno lokalno: ${submitter} -> ${victim}`);
+
+        // Programmatically switch back to the main 'Tablica subova' view
+        const mainTabBtn = document.querySelector('.tab-btn[data-tab="tablica"]');
+        if (mainTabBtn) mainTabBtn.click();
+
+      } catch (err) {
+        showToast("Greška pri spremanju!", true);
       }
     }
 
