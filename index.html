@@ -180,6 +180,7 @@
                 <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
                   <th class="py-3.5 px-4 rounded-l-xl">Rang</th>
                   <th class="py-3.5 px-4">Natjecatelj</th>
+                  <th class="py-3.5 px-4 text-center">Dolasci</th>
                   <th class="py-3.5 px-4 text-center">Ukupno Sub-ova</th>
                   <th class="py-3.5 px-4 text-center">Različitih Protivnika</th>
                   <th class="py-3.5 px-4 text-center">Najdraža Žrtva</th>
@@ -218,6 +219,7 @@
                 <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
                   <th class="py-3.5 px-4 rounded-l-xl">Rang</th>
                   <th class="py-3.5 px-4">Natjecatelj</th>
+                  <th class="py-3.5 px-4 text-center">Dolasci</th>
                   <th class="py-3.5 px-4 text-center">Popušeno</th>
                   <th class="py-3.5 px-4 text-center rounded-r-xl">Najteži Protivnik</th>
                 </tr>
@@ -518,6 +520,25 @@
           <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Spremi Izmjene</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- ATTENDANCE BREAKDOWN MODAL -->
+  <div id="attendanceModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-calendar-days text-amber-400 text-lg"></i>
+          <h3 id="attendanceModalTitle" class="font-display uppercase text-white font-bold text-base">Dolasci na Trening</h3>
+        </div>
+        <button id="closeAttendanceModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div id="attendanceModalSummary" class="text-xs text-slate-400">
+      </div>
+
+      <div id="attendanceDatesGrid" class="grid grid-cols-2 sm:grid-cols-3 gap-2.5 max-h-72 overflow-y-auto pr-1">
+      </div>
     </div>
   </div>
 
@@ -900,6 +921,11 @@
       document.getElementById('tablicaDateFilter')?.addEventListener('change', renderTablica);
       document.getElementById('leastTappedDateFilter')?.addEventListener('change', renderLeastTapped);
 
+      // Attendance Modal Close Listener
+      document.getElementById('closeAttendanceModal')?.addEventListener('click', () => {
+        document.getElementById('attendanceModal')?.classList.add('hidden');
+      });
+
       // Modal Close
       document.getElementById('closeModal')?.addEventListener('click', () => {
         document.getElementById('matchModal').classList.add('hidden');
@@ -1164,6 +1190,9 @@
         const totalWins = userWins.length;
         const uniqueVictims = new Set(userWins.map(l => l.victim)).size;
 
+        // Calculate unique dates attended
+        const attendedDates = new Set(filteredLogs.filter(l => l.submitter === name || l.victim === name).map(l => l.date)).size;
+
         let maxVictimSubs = 0;
         let favoriteVictims = [];
         COMPETITORS.forEach(opp => {
@@ -1197,7 +1226,7 @@
           }
         }
 
-        return { name, totalWins, uniqueVictims, favoriteVictimText, toughestText };
+        return { name, totalWins, uniqueVictims, attendedDates, favoriteVictimText, toughestText };
       });
 
       stats.sort((a, b) => b.totalWins - a.totalWins || b.uniqueVictims - a.uniqueVictims);
@@ -1221,6 +1250,11 @@
         tr.innerHTML = `
           <td class="py-3 px-4 font-bold">${rankBadge}</td>
           <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-amber-300 hover:border-amber-500/50 font-medium text-xs transition cursor-pointer">
+              <i class="fa-solid fa-calendar-check text-amber-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
+            </button>
+          </td>
           <td class="py-3 px-4 text-center">
             <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-amber-400 font-bold text-sm">
               ${player.totalWins}
@@ -1247,6 +1281,9 @@
         const totalLosses = userLosses.length;
         const totalWins = filteredLogs.filter(l => l.submitter === name).length;
 
+        // Calculate unique dates attended
+        const attendedDates = new Set(filteredLogs.filter(l => l.submitter === name || l.victim === name).map(l => l.date)).size;
+
         let maxExecutionCount = 0;
         let executioners = [];
         COMPETITORS.forEach(opp => {
@@ -1263,7 +1300,7 @@
 
         const executionerText = executioners.length > 0 ? executioners.join(', ') : '<span class="text-emerald-400 font-medium">Nitko (Neporažen)</span>';
 
-        return { name, totalLosses, totalWins, executionerText };
+        return { name, totalLosses, totalWins, attendedDates, executionerText };
       });
 
       stats.sort((a, b) => a.totalLosses - b.totalLosses || b.totalWins - a.totalWins);
@@ -1288,6 +1325,11 @@
           <td class="py-3 px-4 font-bold">${rankBadge}</td>
           <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
           <td class="py-3 px-4 text-center">
+            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/50 font-medium text-xs transition cursor-pointer">
+              <i class="fa-solid fa-calendar-check text-emerald-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
+            </button>
+          </td>
+          <td class="py-3 px-4 text-center">
             <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 ${player.totalLosses === 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold text-sm">
               ${player.totalLosses}
             </span>
@@ -1305,6 +1347,12 @@
       const stats = COMPETITORS.map(name => {
         const userWins = logs.filter(l => l.submitter === name);
         const totalWins = userWins.length;
+        const userLogs = logs.filter(l => l.submitter === name || l.victim === name);
+        const attendedDatesSet = new Set(userLogs.map(l => l.date));
+        const attendedDates = attendedDatesSet.size;
+
+        // Average submissions per session attended
+        const avgSubsPerSession = attendedDates > 0 ? (totalWins / attendedDates).toFixed(1) : "0.0";
 
         const opponentMap = {};
         COMPETITORS.forEach(opp => {
@@ -1313,7 +1361,7 @@
           }
         });
 
-        return { name, totalWins, opponentMap };
+        return { name, totalWins, attendedDates, avgSubsPerSession, opponentMap };
       });
 
       stats.sort((a, b) => b.totalWins - a.totalWins);
@@ -1358,7 +1406,7 @@
           const card = document.createElement('div');
           card.className = `bg-slate-900 border ${borderHighlight} rounded-2xl p-4 transition hover:border-slate-700 shadow-md`;
           card.innerHTML = `
-            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
               <div class="flex items-center space-x-3">
                 ${rankBadge}
                 <div>
@@ -1367,10 +1415,28 @@
                 </div>
               </div>
 
-              <div class="flex items-center gap-2 bg-slate-950/80 px-4 py-2 rounded-xl border border-slate-800/80 self-start sm:self-auto">
-                <i class="fa-solid fa-trophy text-amber-400 text-xs"></i>
-                <span class="text-xs uppercase text-slate-400 font-semibold">Sub-ovi:</span>
-                <span class="text-2xl font-extrabold text-amber-400">${player.totalWins}</span>
+              <!-- Stat Badges Grid displaying session averages -->
+              <div class="grid grid-cols-3 gap-2 w-full lg:w-auto">
+                <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="flex flex-col items-center justify-center bg-slate-950/80 hover:bg-slate-800 px-3 py-2 rounded-xl border border-slate-800/80 hover:border-amber-500/50 transition cursor-pointer text-center">
+                  <span class="text-[10px] uppercase text-slate-400 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-calendar-check text-amber-400"></i> Dolasci
+                  </span>
+                  <span class="text-sm font-bold text-slate-200 mt-0.5">${player.attendedDates}/${DATES.length}</span>
+                </button>
+
+                <div class="flex flex-col items-center justify-center bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 text-center">
+                  <span class="text-[10px] uppercase text-slate-400 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-trophy text-amber-400"></i> Sub-ovi
+                  </span>
+                  <span class="text-sm font-extrabold text-amber-400 mt-0.5">${player.totalWins}</span>
+                </div>
+
+                <div class="flex flex-col items-center justify-center bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 text-center" title="Prosječan broj submissiona po dolasku">
+                  <span class="text-[10px] uppercase text-slate-400 font-semibold flex items-center gap-1">
+                    <i class="fa-solid fa-bolt text-amber-400"></i> Sub / Trening
+                  </span>
+                  <span class="text-sm font-bold text-emerald-400 mt-0.5">${player.avgSubsPerSession}</span>
+                </div>
               </div>
             </div>
 
@@ -1449,6 +1515,69 @@
           list.appendChild(item);
         });
       }
+
+      modal.classList.remove('hidden');
+    };
+
+    window.openAttendanceModal = function(name) {
+      const modal = document.getElementById('attendanceModal');
+      const title = document.getElementById('attendanceModalTitle');
+      const summary = document.getElementById('attendanceModalSummary');
+      const grid = document.getElementById('attendanceDatesGrid');
+
+      if (!modal || !title || !grid) return;
+
+      title.textContent = `Dolasci: ${name}`;
+
+      const playerLogs = logs.filter(l => l.submitter === name || l.victim === name);
+      const attendedDatesSet = new Set(playerLogs.map(l => l.date));
+      const attendedCount = attendedDatesSet.size;
+      const percentage = Math.round((attendedCount / DATES.length) * 100);
+
+      if (summary) {
+        summary.innerHTML = `
+          <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-medium">
+            <span>Prisutnost: <strong class="text-amber-400">${attendedCount} / ${DATES.length}</strong> treninga</span>
+            <span class="text-emerald-400 font-bold">${percentage}%</span>
+          </div>
+        `;
+      }
+
+      grid.innerHTML = '';
+
+      DATES.forEach(d => {
+        const isAttended = attendedDatesSet.has(d);
+        const dateLogs = playerLogs.filter(l => l.date === d);
+        const subsGiven = dateLogs.filter(l => l.submitter === name).length;
+        const subsConceded = dateLogs.filter(l => l.victim === name).length;
+
+        const card = document.createElement('div');
+        if (isAttended) {
+          card.className = "p-2.5 rounded-xl bg-emerald-500/10 border border-emerald-500/40 flex flex-col justify-between";
+          card.innerHTML = `
+            <div class="flex items-center justify-between text-xs font-bold text-emerald-400">
+              <span>${d}</span>
+              <i class="fa-solid fa-circle-check text-sm"></i>
+            </div>
+            <div class="text-[10px] text-emerald-300/80 mt-1 font-medium">
+              Prisutan
+              ${(subsGiven > 0 || subsConceded > 0) ? `<br><span class="text-slate-400">(${subsGiven} sub / -${subsConceded})</span>` : ''}
+            </div>
+          `;
+        } else {
+          card.className = "p-2.5 rounded-xl bg-rose-500/10 border border-rose-500/30 flex flex-col justify-between opacity-75";
+          card.innerHTML = `
+            <div class="flex items-center justify-between text-xs font-bold text-rose-400">
+              <span>${d}</span>
+              <i class="fa-solid fa-circle-xmark text-sm"></i>
+            </div>
+            <div class="text-[10px] text-rose-300/70 mt-1 font-medium">
+              Propušteno
+            </div>
+          `;
+        }
+        grid.appendChild(card);
+      });
 
       modal.classList.remove('hidden');
     };
