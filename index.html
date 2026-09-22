@@ -86,7 +86,6 @@
             <h1 class="text-2xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
               Sub Challenge
             </h1>
-            <p class="text-xs text-slate-400">Automatska Real-Time Cloud Sinkronizacija</p>
           </div>
         </div>
 
@@ -239,7 +238,7 @@
           </div>
           <div class="text-xs text-slate-400 flex items-center gap-2">
             <span class="text-amber-400"><i class="fa-solid fa-circle-info"></i></span>
-            Klikni na protivničku pločicu za pregled svih sub-ova
+            Klikni na protivnički ID za pregled svih sub-ova
           </div>
         </div>
 
@@ -1440,7 +1439,7 @@
           item.className = "flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800";
           item.innerHTML = `
             <div>
-              <div class="font-semibold text-slate-200">${submitter} predala/o ${victim}</div>
+              <div class="font-semibold text-slate-200">${submitter} završio ${victim}</div>
               <div class="text-[10px] text-amber-400 font-semibold">${m.date || 'Nema datuma'}</div>
             </div>
             <button onclick="window.requestDeleteLog('${m.id}')" class="text-rose-400 hover:text-rose-300 p-1">
