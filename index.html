@@ -113,6 +113,10 @@
           <i class="fa-solid fa-table-cells"></i>
           Matrix (16x16)
         </button>
+        <button data-tab="history" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2">
+          <i class="fa-solid fa-list-check"></i>
+          Povijest & Uređivanje
+        </button>
         <button data-tab="log" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-amber-400 border border-amber-500/30 bg-amber-500/10 hover:bg-amber-500/20 transition flex items-center gap-2">
           <i class="fa-solid fa-plus-circle"></i>
           Log Sub
@@ -252,6 +256,46 @@
         </div>
       </div>
 
+      <!-- TAB 6: HISTORY & ADMIN LOG MANAGEMENT -->
+      <div id="viewHistory" class="tab-view hidden space-y-4">
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
+          <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
+            <div>
+              <h2 class="text-xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-amber-400"></i>
+                Povijest & Uređivanje Upisa
+              </h2>
+              <p class="text-xs text-slate-400">Pregled i izmjena svih zabilježenih predaja (Admin prilagodba)</p>
+            </div>
+
+            <!-- History Search & Filter -->
+            <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
+              <input type="text" id="historySearch" placeholder="Pretraži po imenu..." class="w-full sm:w-48 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+              <select id="historyDateFilter" class="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-amber-300 font-medium focus:outline-none focus:border-amber-500">
+                <option value="ALL">Svi Datumi</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- History Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full text-left text-sm">
+              <thead>
+                <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
+                  <th class="py-3 px-4 rounded-l-xl">Datum</th>
+                  <th class="py-3 px-4">Pobjednik (Submitter)</th>
+                  <th class="py-3 px-4">Porazeni (Tapped)</th>
+                  <th class="py-3 px-4 text-right rounded-r-xl">Akcije (Admin)</th>
+                </tr>
+              </thead>
+              <tbody id="historyTableBody" class="divide-y divide-slate-800/60 font-medium text-xs">
+                <!-- Dynamic history rows -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
       <!-- TAB 4: LOG SUBMISSION FORM (PROTECTED) -->
       <div id="viewLog" class="tab-view hidden max-w-xl mx-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
@@ -325,8 +369,8 @@
         <i class="fa-solid fa-shield-halved"></i>
       </div>
       <div>
-        <h3 class="font-display uppercase text-white font-bold text-lg">Admin Autorizacija</h3>
-        <p class="text-xs text-slate-400 mt-1">Unesi Admin PIN za autorizaciju</p>
+        <h3 id="pinModalTitle" class="font-display uppercase text-white font-bold text-lg">Autorizacija</h3>
+        <p id="pinModalSubtitle" class="text-xs text-slate-400 mt-1">Unesi PIN za autorizaciju</p>
       </div>
 
       <form id="pinForm" class="space-y-4">
@@ -385,6 +429,43 @@
     </div>
   </div>
 
+  <!-- EDIT SUBMISSION MODAL -->
+  <div id="editSubModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-6 shadow-2xl space-y-5">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-pen-to-square text-amber-400 text-lg"></i>
+          <h3 class="font-display uppercase text-white font-bold text-base">Uredi Submission</h3>
+        </div>
+        <button id="closeEditModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <form id="editSubForm" class="space-y-4">
+        <input type="hidden" id="editLogId">
+        
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Pobjednik (Submitter)</label>
+          <select id="editSubmitter" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-amber-500"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Protivnik (Tapped)</label>
+          <select id="editVictim" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-slate-200 text-xs focus:outline-none focus:border-amber-500"></select>
+        </div>
+
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Datum</label>
+          <select id="editDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-amber-300 text-xs font-semibold focus:outline-none focus:border-amber-500"></select>
+        </div>
+
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="cancelEditBtn" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Spremi Izmjene</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
   <!-- TOAST NOTIFICATION -->
   <div id="toast" class="fixed bottom-5 right-5 bg-slate-800 border border-amber-500/50 text-slate-100 px-4 py-3 rounded-xl shadow-2xl transition transform translate-y-20 opacity-0 flex items-center gap-3 z-50">
     <i id="toastIcon" class="fa-solid fa-circle-check text-amber-400 text-lg"></i>
@@ -395,7 +476,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // 16 COMPETITORS LIST
     const COMPETITORS = [
@@ -411,9 +492,13 @@
       "20.10.", "22.10.", "27.10.", "29.10."
     ];
 
-    // ADMIN SECURITY
-    const DEFAULT_PIN = "1234";
+    // SECURITY PINS
+    const LOG_PIN = "1234";     // Standard PIN for logging subs
+    const ADMIN_PIN = "2106";   // Admin PIN for editing & deleting
+
+    let isLogAuthenticated = false;
     let isAdminAuthenticated = false;
+    let activeRequiredPin = LOG_PIN;
 
     // FIREBASE STATE
     const appId = typeof __app_id !== 'undefined' ? __app_id : '6am-nogi-sub-challenge';
@@ -491,16 +576,27 @@
       const dateSelect = document.getElementById('formDate');
       const tablicaFilter = document.getElementById('tablicaDateFilter');
       const leastTappedFilter = document.getElementById('leastTappedDateFilter');
+      const historyDateFilter = document.getElementById('historyDateFilter');
+      const editSubmitter = document.getElementById('editSubmitter');
+      const editVictim = document.getElementById('editVictim');
+      const editDate = document.getElementById('editDate');
 
       submitterSelect.innerHTML = '';
       victimSelect.innerHTML = '';
       dateSelect.innerHTML = '';
+      if (editSubmitter) editSubmitter.innerHTML = '';
+      if (editVictim) editVictim.innerHTML = '';
+      if (editDate) editDate.innerHTML = '';
+
       if (tablicaFilter) tablicaFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
       if (leastTappedFilter) leastTappedFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
+      if (historyDateFilter) historyDateFilter.innerHTML = '<option value="ALL">Svi Datumi</option>';
 
       COMPETITORS.forEach(comp => {
         submitterSelect.add(new Option(comp, comp));
         victimSelect.add(new Option(comp, comp));
+        if (editSubmitter) editSubmitter.add(new Option(comp, comp));
+        if (editVictim) editVictim.add(new Option(comp, comp));
       });
 
       // Default Submitter & Victim
@@ -509,12 +605,31 @@
 
       DATES.forEach(d => {
         dateSelect.add(new Option(d, d));
+        if (editDate) editDate.add(new Option(d, d));
         if (tablicaFilter) tablicaFilter.add(new Option(d, d));
         if (leastTappedFilter) leastTappedFilter.add(new Option(d, d));
+        if (historyDateFilter) historyDateFilter.add(new Option(d, d));
       });
     }
 
     function setupEventListeners() {
+      // History filters
+      document.getElementById('historySearch')?.addEventListener('input', renderHistory);
+      document.getElementById('historyDateFilter')?.addEventListener('change', renderHistory);
+
+      // Edit Sub Modal Listeners
+      document.getElementById('closeEditModal')?.addEventListener('click', () => {
+        document.getElementById('editSubModal').classList.add('hidden');
+      });
+      document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
+        document.getElementById('editSubModal').classList.add('hidden');
+      });
+
+      document.getElementById('editSubForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        handleEditSubmit();
+      });
+
       // Form submitter change listener
       document.getElementById('formSubmitter')?.addEventListener('change', (e) => {
         const selectedSubmitter = e.target.value;
@@ -542,7 +657,7 @@
           return;
         }
 
-        requireAdminPIN(() => openSubCountModal());
+        promptPIN(LOG_PIN, () => openSubCountModal(), "Autorizacija Unosa", "Unesi PIN za unos submissiona");
       });
 
       // Sub count modal quick select buttons
@@ -569,9 +684,9 @@
         if (isAdminAuthenticated) {
           isAdminAuthenticated = false;
           updateAdminUI();
-          showToast("Admin session locked.");
+          showToast("Admin sesija zaključana.");
         } else {
-          requireAdminPIN(() => {});
+          promptPIN(ADMIN_PIN, () => {}, "Admin Autorizacija", "Unesi Admin PIN za uređivanje/brisanje");
         }
       };
       document.getElementById('adminStatusBtnDesktop')?.addEventListener('click', toggleAdmin);
@@ -581,12 +696,17 @@
       document.getElementById('pinForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
         const input = document.getElementById('pinInput').value;
-        if (input === DEFAULT_PIN) {
-          isAdminAuthenticated = true;
-          updateAdminUI();
+        if (input === activeRequiredPin) {
+          if (activeRequiredPin === LOG_PIN) {
+            isLogAuthenticated = true;
+          }
+          if (activeRequiredPin === ADMIN_PIN) {
+            isAdminAuthenticated = true;
+            updateAdminUI();
+          }
           document.getElementById('pinModal').classList.add('hidden');
           document.getElementById('pinInput').value = '';
-          showToast("Admin access unlocked!");
+          showToast("Autorizacija uspješna!");
           if (pendingAction) {
             pendingAction();
             pendingAction = null;
@@ -631,19 +751,103 @@
           if (tabName === 'leastTapped') document.getElementById('viewLeastTapped')?.classList.remove('hidden');
           if (tabName === 'leaderboard') document.getElementById('viewLeaderboard')?.classList.remove('hidden');
           if (tabName === 'matrix') document.getElementById('viewMatrix')?.classList.remove('hidden');
+          if (tabName === 'history') document.getElementById('viewHistory')?.classList.remove('hidden');
           if (tabName === 'log') document.getElementById('viewLog')?.classList.remove('hidden');
         });
       });
     }
+    async function handleEditSubmit() {
+      const id = document.getElementById('editLogId').value;
+      const submitter = document.getElementById('editSubmitter').value;
+      const victim = document.getElementById('editVictim').value;
+      const date = document.getElementById('editDate').value;
 
-    function requireAdminPIN(callback) {
-      if (isAdminAuthenticated) {
-        callback();
-      } else {
-        pendingAction = callback;
-        document.getElementById('pinModal').classList.remove('hidden');
-        document.getElementById('pinInput').focus();
+      if (submitter === victim) {
+        showToast("Pobjednik i protivnik ne mogu biti isti!", true);
+        return;
       }
+
+      try {
+        if (isCloudSyncActive && db) {
+          const docRef = doc(db, ...COLLECTION_PATH, id);
+          await updateDoc(docRef, { submitter, victim, date });
+          showToast(`Uspješno izmijenjeno: ${submitter} vs ${victim}`);
+        } else {
+          const idx = logs.findIndex(l => l.id === id);
+          if (idx !== -1) {
+            logs[idx] = { ...logs[idx], submitter, victim, date };
+            saveLocalLogs();
+            renderAll();
+            showToast(`Uspješno izmijenjeno lokalno`);
+          }
+        }
+        document.getElementById('editSubModal').classList.add('hidden');
+      } catch (err) {
+        showToast("Greška pri izmjeni!", true);
+      }
+    }
+
+    window.openEditModal = function(id) {
+      const log = logs.find(l => l.id === id);
+      if (!log) return;
+
+      promptPIN(ADMIN_PIN, () => {
+        document.getElementById('editLogId').value = log.id;
+        document.getElementById('editSubmitter').value = log.submitter;
+        document.getElementById('editVictim').value = log.victim;
+        document.getElementById('editDate').value = log.date;
+        document.getElementById('editSubModal').classList.remove('hidden');
+      }, "Admin Autorizacija", "Unesi Admin PIN za uređivanje");
+    };
+
+    function renderHistory() {
+      const tbody = document.getElementById('historyTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      const search = (document.getElementById('historySearch')?.value || '').toLowerCase();
+      const filterDate = document.getElementById('historyDateFilter')?.value || 'ALL';
+
+      let filtered = logs.filter(l => {
+        const matchesDate = filterDate === 'ALL' || l.date === filterDate;
+        const matchesSearch = !search || 
+          l.submitter.toLowerCase().includes(search) || 
+          l.victim.toLowerCase().includes(search);
+        return matchesDate && matchesSearch;
+      });
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="4" class="py-4 text-center text-slate-500">Nema zabilježenih predaja za izabrane filtre.</td></tr>`;
+        return;
+      }
+
+      filtered.forEach(log => {
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-800/40 border-b border-slate-800/40 transition";
+        tr.innerHTML = `
+          <td class="py-3 px-4 font-semibold text-amber-400">${log.date || '-'}</td>
+          <td class="py-3 px-4 text-slate-100 font-semibold">${log.submitter}</td>
+          <td class="py-3 px-4 text-slate-300">${log.victim}</td>
+          <td class="py-3 px-4 text-right space-x-1">
+            <button onclick="window.openEditModal('${log.id}')" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs transition">
+              <i class="fa-solid fa-pen-to-square"></i> Uredi
+            </button>
+            <button onclick="window.requestDeleteLog('${log.id}')" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs transition">
+              <i class="fa-solid fa-trash-can"></i> Obriši
+            </button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function renderAll() {
+      document.getElementById('statTotalSubs').textContent = logs.length;
+      renderTablica();
+      renderLeastTapped();
+      renderLeaderboard();
+      renderMatrix();
+      renderHistory();
     }
 
     function openSubCountModal() {
@@ -657,6 +861,27 @@
       document.getElementById('subCountModal')?.classList.remove('hidden');
     }
 
+    function promptPIN(requiredPin, callback, title = "Autorizacija", subtitle = "Unesi PIN za autorizaciju") {
+      if ((requiredPin === LOG_PIN && isLogAuthenticated) || (requiredPin === ADMIN_PIN && isAdminAuthenticated)) {
+        if (callback) callback();
+        return;
+      }
+
+      activeRequiredPin = requiredPin;
+      pendingAction = callback;
+
+      const modal = document.getElementById('pinModal');
+      const input = document.getElementById('pinInput');
+      const titleEl = document.getElementById('pinModalTitle');
+      const subtitleEl = document.getElementById('pinModalSubtitle');
+
+      if (titleEl) titleEl.textContent = title;
+      if (subtitleEl) subtitleEl.textContent = subtitle;
+      if (input) input.value = '';
+      if (modal) modal.classList.remove('hidden');
+      setTimeout(() => input?.focus(), 100);
+    }
+
     function updateAdminUI() {
       const desktopBtn = document.getElementById('adminStatusBtnDesktop');
       const mobileBtn = document.getElementById('adminStatusBtnMobile');
@@ -668,8 +893,8 @@
         if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
         if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
         if (lockIcon) lockIcon.className = "fa-solid fa-unlock text-emerald-400";
-        if (btnText) btnText.textContent = "Otključano";
-        if (btnTextMobile) btnTextMobile.textContent = "Otključano";
+        if (btnText) btnText.textContent = "Admin Otključan";
+        if (btnTextMobile) btnTextMobile.textContent = "Admin Otključan";
       } else {
         if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600";
         if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400";
@@ -747,14 +972,6 @@
 
     function saveLocalLogs() {
       localStorage.setItem('nogi_submissions_logs_v2', JSON.stringify(logs));
-    }
-
-    function renderAll() {
-      document.getElementById('statTotalSubs').textContent = logs.length;
-      renderTablica();
-      renderLeastTapped();
-      renderLeaderboard();
-      renderMatrix();
     }
 
     function renderTablica() {
@@ -1063,7 +1280,7 @@
     };
 
     window.requestDeleteLog = function(id) {
-      requireAdminPIN(() => deleteLogItem(id));
+      promptPIN(ADMIN_PIN, () => deleteLogItem(id), "Admin Autorizacija", "Unesi Admin PIN za brisanje");
     };
 
     function showToast(msg, isError = false) {
