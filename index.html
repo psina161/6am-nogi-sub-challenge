@@ -133,7 +133,7 @@
         </button>
         <button data-tab="matrix" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2">
           <i class="fa-solid fa-table-cells"></i>
-          Matrix (16x16)
+          Matrix
         </button>
         <button data-tab="history" class="tab-btn px-4 py-2 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2">
           <i class="fa-solid fa-list-check"></i>
@@ -252,7 +252,7 @@
         <div class="mb-4">
           <h3 class="text-lg font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
             <i class="fa-solid fa-chess-board text-amber-400"></i>
-            Head-to-Head Matrix (16x16)
+            Head-to-Head Matrix
           </h3>
           <p class="text-xs text-slate-400">Redak označava pobjednika (Submitter). Stupac označava poraženog (Tapped).</p>
         </div>
@@ -541,8 +541,8 @@
     // EXACT USER-PROVIDED COMPETITOR LIST
     const COMPETITORS = [
       "Markulin", "Gedžo", "Hrvoje", "Marko", "Martin", "Jakov", 
-      "Peša", "Ante", "Nikola", "Denis", "Vulkanizer je gay", 
-      "Davor", "Dean", "Fiškal", "Matija", "Tin"
+      "Peša", "Ante", "Nikola", "Denis", "Kristijan", 
+      "Davor", "Dean", "Fiškal", "Matija", "Tin", "Mladen"
     ];
 
     const DATES = [
@@ -1227,7 +1227,7 @@
               ${player.totalWins}
             </span>
           </td>
-          <td class="py-3 px-4 text-center text-slate-300">${player.uniqueVictims} / 15</td>
+          <td class="py-3 px-4 text-center text-slate-300">${player.uniqueVictims} / ${COMPETITORS.length - 1}</td>
           <td class="py-3 px-4 text-center text-xs text-amber-300/90 font-medium">${player.favoriteVictimText}</td>
           <td class="py-3 px-4 text-center text-xs">${player.toughestText}</td>
         `;
