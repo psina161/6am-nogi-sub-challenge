@@ -51,6 +51,24 @@
       left: 0;
       z-index: 10;
     }
+    .pulse-green {
+      box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      animation: pulse-green 2s infinite;
+    }
+    @keyframes pulse-green {
+      0% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.7);
+      }
+      70% {
+        transform: scale(1);
+        box-shadow: 0 0 0 8px rgba(16, 185, 129, 0);
+      }
+      100% {
+        transform: scale(0.95);
+        box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
+      }
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased">
@@ -69,18 +87,23 @@
             <h1 class="text-2xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
               Sub Challenge
             </h1>
-            <p class="text-xs text-slate-400">16 Competitors • 12 Sessions</p>
+            <p class="text-xs text-slate-400">Automatska Real-Time Sinkronizacija</p>
           </div>
         </div>
 
-        <!-- Admin Lock Indicator -->
+        <!-- Admin Lock Indicator Mobile -->
         <button id="adminStatusBtnMobile" class="sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400">
           <i class="fa-solid fa-lock text-amber-400"></i> <span id="adminBtnTextMobile">Admin</span>
         </button>
       </div>
 
-      <!-- Controls & Admin Access -->
-      <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+      <!-- Controls & Live Sync Access -->
+      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end flex-wrap">
+        <button id="shareGroupLinkBtn" class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20">
+          <i class="fa-solid fa-share-nodes text-sm"></i>
+          <span class="hidden sm:inline">Podijeli Web App</span>
+        </button>
+
         <button id="adminStatusBtnDesktop" class="hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600">
           <i id="adminLockIcon" class="fa-solid fa-lock text-amber-400"></i> 
           <span id="adminBtnText">Admin</span>
@@ -125,7 +148,7 @@
 
       <!-- Global Stats -->
       <div class="flex items-center gap-4 px-3 py-1 text-xs text-slate-400 border-t md:border-t-0 md:border-l border-slate-800 pt-2 md:pt-0">
-        <div>Total Submissions: <span id="statTotalSubs" class="text-amber-400 font-bold text-sm">0</span></div>
+        <div>Ukupno Submissiona: <span id="statTotalSubs" class="text-amber-400 font-bold text-sm">0</span></div>
       </div>
     </div>
 
@@ -148,7 +171,6 @@
               <label class="text-xs text-slate-400 whitespace-nowrap">Datum:</label>
               <select id="tablicaDateFilter" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-amber-300 font-medium focus:outline-none focus:border-amber-500 w-full sm:w-auto">
                 <option value="ALL">Svi Datumi (Overall)</option>
-                <!-- Dynamic date options -->
               </select>
             </div>
           </div>
@@ -174,7 +196,6 @@
         </div>
       </div>
 
-      <!-- TAB 5: TABLICA NAJMANJE POPUŠENIH -->
       <div id="viewLeastTapped" class="tab-view hidden space-y-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
@@ -200,8 +221,8 @@
                 <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
                   <th class="py-3.5 px-4 rounded-l-xl">Rang</th>
                   <th class="py-3.5 px-4">Natjecatelj</th>
-                  <th class="py-3.5 px-4 text-center">popušeno</th>
-                  <th class="py-3.5 px-4 text-center rounded-r-xl">najteži protivnik</th>
+                  <th class="py-3.5 px-4 text-center">Popušeno</th>
+                  <th class="py-3.5 px-4 text-center rounded-r-xl">Najteži Protivnik</th>
                 </tr>
               </thead>
               <tbody id="leastTappedTableBody" class="divide-y divide-slate-800/60 font-medium">
@@ -212,9 +233,7 @@
         </div>
       </div>
 
-      <!-- TAB 2: LEADERBOARD & OPPONENT CARDS -->
       <div id="viewLeaderboard" class="tab-view hidden space-y-4">
-        <!-- Search & Filter Bar -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900 p-3 rounded-2xl border border-slate-800">
           <div class="relative w-full sm:w-64">
             <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-500 text-xs"></i>
@@ -226,13 +245,11 @@
           </div>
         </div>
 
-        <!-- Leaderboard Cards Container -->
         <div id="leaderboardList" class="space-y-3">
           <!-- Rendered dynamically -->
         </div>
       </div>
 
-      <!-- TAB 3: 16x16 HEAD-TO-HEAD MATRIX -->
       <div id="viewMatrix" class="tab-view hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
         <div class="mb-4">
           <h3 class="text-lg font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
@@ -256,7 +273,6 @@
         </div>
       </div>
 
-      <!-- TAB 6: HISTORY & ADMIN LOG MANAGEMENT -->
       <div id="viewHistory" class="tab-view hidden space-y-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
@@ -268,7 +284,6 @@
               <p class="text-xs text-slate-400">Pregled i izmjena svih zabilježenih predaja (Admin prilagodba)</p>
             </div>
 
-            <!-- History Search & Filter -->
             <div class="flex flex-col sm:flex-row items-center gap-2 w-full sm:w-auto">
               <input type="text" id="historySearch" placeholder="Pretraži po imenu..." class="w-full sm:w-48 bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
               <select id="historyDateFilter" class="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-amber-300 font-medium focus:outline-none focus:border-amber-500">
@@ -277,7 +292,6 @@
             </div>
           </div>
 
-          <!-- History Table -->
           <div class="overflow-x-auto">
             <table class="w-full text-left text-sm">
               <thead>
@@ -296,7 +310,6 @@
         </div>
       </div>
 
-      <!-- TAB 4: LOG SUBMISSION FORM (PROTECTED) -->
       <div id="viewLog" class="tab-view hidden max-w-xl mx-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
           <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
@@ -311,12 +324,10 @@
           </div>
 
           <form id="subForm" class="space-y-5">
-            <!-- Submitter (Winner) -->
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Pobjednik (Submitter)</label>
               <div class="relative">
                 <select id="formSubmitter" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-slate-200 focus:outline-none focus:border-amber-500 appearance-none font-medium">
-                  <!-- Dynamic Options -->
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
                   <i class="fa-solid fa-chevron-down text-xs"></i>
@@ -324,12 +335,10 @@
               </div>
             </div>
 
-            <!-- Opponent (Victim) -->
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Protivnik (Predao)</label>
               <div class="relative">
                 <select id="formVictim" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-slate-200 focus:outline-none focus:border-amber-500 appearance-none font-medium">
-                  <!-- Dynamic Options -->
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
                   <i class="fa-solid fa-chevron-down text-xs"></i>
@@ -337,12 +346,10 @@
               </div>
             </div>
 
-            <!-- Date Selection -->
             <div>
               <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Datum Treninga</label>
               <div class="relative">
                 <select id="formDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-amber-300 font-semibold focus:outline-none focus:border-amber-500 appearance-none">
-                  <!-- Dynamic 12 Dates -->
                 </select>
                 <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
                   <i class="fa-solid fa-calendar-day text-xs"></i>
@@ -350,7 +357,6 @@
               </div>
             </div>
 
-            <!-- Submit Button -->
             <button type="submit" class="w-full bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-bold py-3.5 px-4 rounded-xl shadow-lg shadow-amber-500/10 transition transform active:scale-95 uppercase tracking-wider text-sm flex items-center justify-center gap-2">
               <i class="fa-solid fa-plus-circle text-lg"></i>
               Spremi Submission
@@ -395,24 +401,91 @@
       </div>
 
       <form id="subCountForm" class="space-y-4">
-        <!-- Quick selection pills -->
-        <div class="flex justify-center gap-1.5 mb-1">
-          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="1">1x</button>
-          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="2">2x</button>
-          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="3">3x</button>
-          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="4">4x</button>
-          <button type="button" class="sub-count-pill px-3 py-1.5 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold border border-slate-700 transition" data-val="5">5x</button>
+        <div class="flex justify-center gap-2">
+          <button type="button" data-val="1" class="sub-count-pill px-3 py-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold transition">1x</button>
+          <button type="button" data-val="2" class="sub-count-pill px-3 py-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold transition">2x</button>
+          <button type="button" data-val="3" class="sub-count-pill px-3 py-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold transition">3x</button>
+          <button type="button" data-val="4" class="sub-count-pill px-3 py-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold transition">4x</button>
+          <button type="button" data-val="5" class="sub-count-pill px-3 py-2 bg-slate-800 hover:bg-amber-500 hover:text-slate-950 text-slate-200 rounded-xl text-xs font-bold transition">5x</button>
         </div>
 
         <div>
-          <input type="number" id="subCountInput" min="1" max="20" value="1" required class="w-full text-center tracking-widest text-xl font-bold bg-slate-950 border border-slate-800 rounded-xl py-2.5 text-amber-400 focus:outline-none focus:border-amber-500">
+          <input type="number" id="subCountInput" min="1" max="20" value="1" required class="w-full text-center text-xl font-bold bg-slate-950 border border-slate-800 rounded-xl py-2.5 text-amber-400 focus:outline-none focus:border-amber-500">
         </div>
 
         <div class="flex gap-2">
           <button type="button" id="closeSubCountModal" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
-          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Spremi</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Spremi Unos</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <!-- FIREBASE AUTOMATED CLOUD CONFIG & SYNC MODAL -->
+  <div id="dataSyncModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <div class="flex items-center gap-2">
+          <i class="fa-solid fa-cloud text-amber-400 text-lg"></i>
+          <h3 class="font-display uppercase text-white font-bold text-base">Automatska Cloud Baza</h3>
+        </div>
+        <button id="closeDataSyncModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+
+      <div id="cloudStatusCard" class="p-3.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-xs space-y-1.5">
+        <div class="flex items-center justify-between font-bold text-emerald-400">
+          <span class="flex items-center gap-2"><i class="fa-solid fa-wifi text-sm"></i> Real-Time Cloud Sync</span>
+          <span id="activeDeviceCountBadge" class="bg-emerald-500 text-slate-950 px-2 py-0.5 rounded text-[10px] uppercase font-extrabold">Uživo</span>
+        </div>
+        <p class="text-slate-300 text-[11px] leading-relaxed">
+          Svi unosi na bilo kojem uređaju se u realnom vremenu sinkroniziraju sa svim ostalim članovima ekipe u cloud bazi.
+        </p>
+      </div>
+
+      <div class="space-y-3 pt-1">
+        <div class="border border-slate-800 bg-slate-950/60 p-3 rounded-xl space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
+              <i class="fa-solid fa-share-nodes text-emerald-400"></i> Link Aplikacije za Ekipu
+            </span>
+          </div>
+          <p class="text-[11px] text-slate-400">Pošaljite ovaj link u grupu. Čim netko otvori aplikaciju na mobitelu ili računalu, automatski je spojen bez ikakve registracije ili podešavanja.</p>
+          <button id="copyGroupLinkBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition">
+            <i class="fa-solid fa-link text-sm"></i> Kopiraj Link Aplikacije
+          </button>
+        </div>
+
+        <div class="border-t border-slate-800/80 my-2 pt-3">
+          <button id="toggleCustomFirebaseBtn" class="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
+            <i class="fa-solid fa-gear"></i> Napredno: Vlastite Firebase Credential postavke
+          </button>
+
+          <div id="customFirebaseFields" class="hidden space-y-3 mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
+            <label class="block text-[11px] font-semibold uppercase text-slate-400">Zalijepite Custom Firebase Config JSON:</label>
+            <textarea id="customFirebaseConfigInput" rows="4" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500"></textarea>
+            <div class="flex gap-2">
+              <button id="saveCustomFirebaseBtn" class="w-1/2 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition">
+                Spremi I Poveži
+              </button>
+              <button id="resetFirebaseBtn" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition">
+                Vrati Zadano
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Local Data Backup / Restore -->
+        <div class="border-t border-slate-800 my-2 pt-3">
+          <div class="flex justify-between items-center mb-2">
+            <span class="text-xs font-semibold text-slate-400">Ručni Sigurnosni JSON Export / Import</span>
+            <button id="exportJsonBtn" class="text-xs text-amber-400 hover:underline">Kopiraj JSON</button>
+          </div>
+          <div class="flex gap-2">
+            <input type="text" id="importJsonInput" placeholder="Zalijepi JSON za uvoz..." class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200">
+            <button id="importJsonBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700">Uvezi</button>
+          </div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -424,7 +497,6 @@
         <button id="closeModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <div id="modalMatchList" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs">
-        <!-- Dynamic match list -->
       </div>
     </div>
   </div>
@@ -472,11 +544,11 @@
     <span id="toastMsg" class="text-xs font-medium">Uspješno spremljeno</span>
   </div>
 
-  <!-- FIREBASE & APP SCRIPT -->
+  <!-- FIREBASE & APPLICATION LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
     // 16 COMPETITORS LIST
     const COMPETITORS = [
@@ -500,35 +572,70 @@
     let isAdminAuthenticated = false;
     let activeRequiredPin = LOG_PIN;
 
-    // FIREBASE STATE
-    const appId = typeof __app_id !== 'undefined' ? __app_id : '6am-nogi-sub-challenge';
-    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {
-      apiKey: "demo-api-key",
-      authDomain: "demo-app.firebaseapp.com",
-      projectId: "demo-app",
-      storageBucket: "demo-app.appspot.com",
-      messagingSenderId: "123456789",
-      appId: "1:123456789:web:abcdef"
-    };
+    // APP ID & DEFAULT FALLBACK CONFIG
+    const appId = typeof __app_id !== 'undefined' ? __app_id : '6am-nogi-sub-challenge-v1';
+    
+    // Check for auto-configuration passed via URL Hash parameter (#config=...)
+    let firebaseConfig = null;
+    if (window.location.hash.startsWith('#config=')) {
+      try {
+        const encoded = window.location.hash.replace('#config=', '');
+        const decoded = decodeURIComponent(atob(encoded));
+        firebaseConfig = JSON.parse(decoded);
+        localStorage.setItem('nogi_custom_firebase_config', JSON.stringify(firebaseConfig));
+        // Clean hash from URL without reloading
+        history.replaceState(null, null, window.location.pathname);
+      } catch (e) {
+        console.error("Greška pri čitanju konfiguracije iz URL-a:", e);
+      }
+    }
+
+    if (!firebaseConfig) {
+      const savedConfig = localStorage.getItem('nogi_custom_firebase_config');
+      if (savedConfig) {
+        try { firebaseConfig = JSON.parse(savedConfig); } catch(e){}
+      }
+    }
+
+    if (!firebaseConfig && typeof __firebase_config !== 'undefined' && __firebase_config) {
+      try { firebaseConfig = JSON.parse(__firebase_config); } catch(e){}
+    }
+
+    // Default Fallback Demo Config if none supplied
+    if (!firebaseConfig) {
+      firebaseConfig = {
+        apiKey: "demo-api-key",
+        authDomain: "demo-6am-nogi.firebaseapp.com",
+        projectId: "demo-6am-nogi",
+        storageBucket: "demo-6am-nogi.appspot.com",
+        messagingSenderId: "123456789",
+        appId: "1:123456789:web:abcdef"
+      };
+    }
 
     let db = null;
     let auth = null;
     let logs = [];
     let isCloudSyncActive = false;
-    let pendingAction = null; // Callback after PIN validation
+    let pendingAction = null;
+    let initialLoadComplete = false;
 
+    // Standard public path requirement
     const COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'submissions'];
 
     window.addEventListener('DOMContentLoaded', async () => {
       initFormSelects();
       setupEventListeners();
+      initializeCloudSync();
+    });
 
-      // Initialize Firebase
+    async function initializeCloudSync() {
       try {
         const app = initializeApp(firebaseConfig);
         auth = getAuth(app);
         db = getFirestore(app);
 
+        // Authenticate before query
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
         } else {
@@ -536,24 +643,38 @@
         }
 
         const subCol = collection(db, ...COLLECTION_PATH);
+
+        // Real-time listener for all 15 devices
         onSnapshot(subCol, (snapshot) => {
+          const previousCount = logs.length;
           logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+          // Sort in memory (Rule 2: avoid complex compound queries)
+          logs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
+
           isCloudSyncActive = true;
           updateSyncBadge(true);
           renderAll();
+
+          if (initialLoadComplete && logs.length > previousCount) {
+            showToast("Novi submission dodan uživo od člana!");
+          }
+          initialLoadComplete = true;
+
         }, (error) => {
-          console.warn("Firestore error, switching to local mode:", error);
+          console.warn("Firestore konekcija nije uspjela. Prebacujem na lokalni mod:", error);
           fallbackToLocalStorage();
         });
 
       } catch (err) {
-        console.warn("Firebase failed to load, switching to local mode:", err);
+        console.warn("Inicijalizacija Firebase-a propala, prebacujem na lokalni mod:", err);
         fallbackToLocalStorage();
       }
-    });
+    }
 
     function fallbackToLocalStorage() {
       isCloudSyncActive = false;
+      updateSyncBadge(false);
       logs = JSON.parse(localStorage.getItem('nogi_submissions_logs_v2')) || [];
       renderAll();
     }
@@ -562,11 +683,11 @@
       const badge = document.getElementById('syncBadge');
       if (!badge) return;
       if (online) {
-        badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase font-semibold flex items-center gap-1";
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live Sync`;
+        badge.className = "text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/30 transition shadow-sm shadow-emerald-500/10";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-green"></span> <span>Cloud Sync Aktivan</span>`;
       } else {
-        badge.className = "text-[10px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-2 py-0.5 rounded-full uppercase font-semibold flex items-center gap-1";
-        badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-amber-400"></span> Local Mode`;
+        badge.className = "text-[11px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-xl font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-amber-500/30 transition";
+        badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> <span>Lokalni Način</span>`;
       }
     }
 
@@ -599,7 +720,6 @@
         if (editVictim) editVictim.add(new Option(comp, comp));
       });
 
-      // Default Submitter & Victim
       submitterSelect.value = COMPETITORS[0];
       victimSelect.value = COMPETITORS[1];
 
@@ -612,10 +732,122 @@
       });
     }
 
+    function generateShareableLink() {
+      if (!firebaseConfig) return window.location.href;
+      try {
+        const jsonStr = JSON.stringify(firebaseConfig);
+        const encoded = btoa(encodeURIComponent(jsonStr));
+        const baseUrl = window.location.origin + window.location.pathname;
+        return `${baseUrl}#config=${encoded}`;
+      } catch (e) {
+        return window.location.href;
+      }
+    }
+
     function setupEventListeners() {
+      // Sync Modal & Share
+      document.getElementById('syncBadge')?.addEventListener('click', () => {
+        document.getElementById('dataSyncModal')?.classList.remove('hidden');
+      });
+
+      document.getElementById('dataSyncModalBtn')?.addEventListener('click', () => {
+        document.getElementById('dataSyncModal')?.classList.remove('hidden');
+      });
+
+      document.getElementById('closeDataSyncModal')?.addEventListener('click', () => {
+        document.getElementById('dataSyncModal')?.classList.add('hidden');
+      });
+
+      // One-click link sharing for group
+      const copyGroupLinkHandler = () => {
+        const link = generateShareableLink();
+        const tempInput = document.createElement('textarea');
+        tempInput.value = link;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showToast("Link aplikacije kopiran! Pošaljite ga ekipi.");
+      };
+
+      document.getElementById('shareGroupLinkBtn')?.addEventListener('click', copyGroupLinkHandler);
+      document.getElementById('copyGroupLinkBtn')?.addEventListener('click', copyGroupLinkHandler);
+
+      // Custom Firebase Toggle
+      document.getElementById('toggleCustomFirebaseBtn')?.addEventListener('click', () => {
+        const customFields = document.getElementById('customFirebaseFields');
+        if (customFields) customFields.classList.toggle('hidden');
+      });
+
+      document.getElementById('saveCustomFirebaseBtn')?.addEventListener('click', () => {
+        const val = document.getElementById('customFirebaseConfigInput')?.value;
+        if (!val) {
+          showToast("Polje je prazno!", true);
+          return;
+        }
+        try {
+          const parsed = JSON.parse(val);
+          localStorage.setItem('nogi_custom_firebase_config', JSON.stringify(parsed));
+          showToast("Nova konfiguracija spremljena! Učitavam...");
+          setTimeout(() => window.location.reload(), 1000);
+        } catch (e) {
+          showToast("Neispravan JSON format!", true);
+        }
+      });
+
+      document.getElementById('resetFirebaseBtn')?.addEventListener('click', () => {
+        localStorage.removeItem('nogi_custom_firebase_config');
+        showToast("Postavke vraćene na zadano. Učitavam...");
+        setTimeout(() => window.location.reload(), 1000);
+      });
+
       // History filters
       document.getElementById('historySearch')?.addEventListener('input', renderHistory);
       document.getElementById('historyDateFilter')?.addEventListener('change', renderHistory);
+
+      // Manual Data Export / Import
+      document.getElementById('exportJsonBtn')?.addEventListener('click', () => {
+        const jsonStr = JSON.stringify(logs, null, 2);
+        const tempInput = document.createElement('textarea');
+        tempInput.value = jsonStr;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        showToast("Podaci kopirani u međuspremnik!");
+      });
+
+      document.getElementById('importJsonBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('importJsonInput')?.value;
+        if (!input) {
+          showToast("Polje je prazno!", true);
+          return;
+        }
+        try {
+          const importedLogs = JSON.parse(input);
+          if (Array.isArray(importedLogs)) {
+            const existingIds = new Set(logs.map(l => l.id));
+            let addedCount = 0;
+            importedLogs.forEach(item => {
+              if (!existingIds.has(item.id)) {
+                logs.push(item);
+                addedCount++;
+              }
+            });
+            saveLocalLogs();
+            renderAll();
+            showToast(`Uspješno uvezeno ${addedCount} novih unosa!`);
+            document.getElementById('dataSyncModal')?.classList.add('hidden');
+            if (document.getElementById('importJsonInput')) {
+              document.getElementById('importJsonInput').value = '';
+            }
+          } else {
+            showToast("Neispravan format podataka!", true);
+          }
+        } catch (err) {
+          showToast("Pogreška pri čitanju podataka!", true);
+        }
+      });
 
       // Edit Sub Modal Listeners
       document.getElementById('closeEditModal')?.addEventListener('click', () => {
@@ -756,6 +988,7 @@
         });
       });
     }
+
     async function handleEditSubmit() {
       const id = document.getElementById('editLogId').value;
       const submitter = document.getElementById('editSubmitter').value;
@@ -928,7 +1161,7 @@
             }));
           }
           await Promise.all(promises);
-          showToast(`Spremljeno (${count}x): ${submitter} -> ${victim}`);
+          showToast(`Spremljeno u cloud (${count}x): ${submitter} -> ${victim}`);
         } else {
           for (let i = 0; i < count; i++) {
             logs.unshift({
@@ -944,7 +1177,6 @@
           showToast(`Spremljeno lokalno (${count}x): ${submitter} -> ${victim}`);
         }
 
-        // Programmatically switch back to the main 'Tablica subova' view
         const mainTabBtn = document.querySelector('.tab-btn[data-tab="tablica"]');
         if (mainTabBtn) mainTabBtn.click();
 
@@ -957,7 +1189,7 @@
       if (isCloudSyncActive && db) {
         try {
           await deleteDoc(doc(db, ...COLLECTION_PATH, id));
-          showToast("Submission obrisan.");
+          showToast("Submission obrisan sa svih uređaja.");
         } catch (err) {
           showToast("Greška pri brisanju", true);
         }
@@ -985,11 +1217,8 @@
       const stats = COMPETITORS.map(name => {
         const userWins = filteredLogs.filter(l => l.submitter === name);
         const totalWins = userWins.length;
-        
-        // Count unique victims
         const uniqueVictims = new Set(userWins.map(l => l.victim)).size;
 
-        // Favorite Victim (opponent submitted most times)
         let maxVictimSubs = 0;
         let favoriteVictims = [];
         COMPETITORS.forEach(opp => {
@@ -1005,14 +1234,12 @@
         });
         const favoriteVictimText = favoriteVictims.length > 0 ? favoriteVictims.join(', ') : '<span class="text-slate-500">-</span>';
 
-        // Toughest Opponent (opponent against whom player has fewest subs, prioritized by who submitted player most)
         let opponentStats = COMPETITORS.filter(opp => opp !== name).map(opp => {
           const subsAgainstOpp = userWins.filter(l => l.victim === opp).length;
           const subsConcededToOpp = filteredLogs.filter(l => l.submitter === opp && l.victim === name).length;
           return { opp, subsAgainstOpp, subsConcededToOpp };
         });
 
-        // Sort: fewest subs made against opp, then most subs conceded to opp
         opponentStats.sort((a, b) => a.subsAgainstOpp - b.subsAgainstOpp || b.subsConcededToOpp - a.subsConcededToOpp);
 
         const toughest = opponentStats[0];
@@ -1028,7 +1255,6 @@
         return { name, totalWins, uniqueVictims, favoriteVictimText, toughestText };
       });
 
-      // Sort by total wins desc, then unique victims desc
       stats.sort((a, b) => b.totalWins - a.totalWins || b.uniqueVictims - a.uniqueVictims);
 
       stats.forEach((player, idx) => {
@@ -1076,7 +1302,6 @@
         const totalLosses = userLosses.length;
         const totalWins = filteredLogs.filter(l => l.submitter === name).length;
 
-        // Top executioner (who submitted this player most)
         let maxExecutionCount = 0;
         let executioners = [];
         COMPETITORS.forEach(opp => {
@@ -1096,7 +1321,6 @@
         return { name, totalLosses, totalWins, executionerText };
       });
 
-      // Sort by fewest losses ascending, then by most total wins desc
       stats.sort((a, b) => a.totalLosses - b.totalLosses || b.totalWins - a.totalWins);
 
       stats.forEach((player, idx) => {
@@ -1287,6 +1511,8 @@
       const toast = document.getElementById('toast');
       const toastMsg = document.getElementById('toastMsg');
       const toastIcon = document.getElementById('toastIcon');
+      if (!toast || !toastMsg || !toastIcon) return;
+
       toastMsg.textContent = msg;
       
       if (isError) {
@@ -1299,7 +1525,7 @@
 
       setTimeout(() => {
         toast.classList.add('translate-y-20', 'opacity-0');
-      }, 3000);
+      }, 3500);
     }
   </script>
 </body>
