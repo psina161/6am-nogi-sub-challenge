@@ -31,7 +31,6 @@
   </script>
 
   <style>
-    /* Custom Scrollbars */
     ::-webkit-scrollbar {
       width: 6px;
       height: 6px;
@@ -75,7 +74,7 @@
 
   <!-- HEADER & APP BAR -->
   <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex flex-col sm:flex-row items-center justify-between gap-4">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
       
       <!-- Brand Logo / Title -->
       <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
@@ -87,7 +86,7 @@
             <h1 class="text-2xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
               Sub Challenge
             </h1>
-            <p class="text-xs text-slate-400">Automatska Real-Time Sinkronizacija</p>
+            <p class="text-xs text-slate-400">Automatska Real-Time Cloud Sinkronizacija</p>
           </div>
         </div>
 
@@ -97,12 +96,12 @@
         </button>
       </div>
 
-      <!-- Controls & Live Sync Access -->
-      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end flex-wrap">
-        <button id="shareGroupLinkBtn" class="px-3 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition bg-emerald-500/10 border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/20">
-          <i class="fa-solid fa-share-nodes text-sm"></i>
-          <span class="hidden sm:inline">Podijeli Web App</span>
-        </button>
+      <!-- Live Sync Status & Admin Toggle -->
+      <div class="flex items-center gap-2 sm:gap-3 w-full sm:w-auto justify-end">
+        <div id="syncBadge" class="text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/30 transition shadow-sm shadow-emerald-500/10">
+          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-green"></span>
+          <span>Cloud Sync Aktivan</span>
+        </div>
 
         <button id="adminStatusBtnDesktop" class="hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600">
           <i id="adminLockIcon" class="fa-solid fa-lock text-amber-400"></i> 
@@ -189,13 +188,13 @@
                 </tr>
               </thead>
               <tbody id="tablicaTableBody" class="divide-y divide-slate-800/60 font-medium">
-                <!-- Dynamically generated rows -->
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
+      <!-- TAB 2: LEAST TAPPED -->
       <div id="viewLeastTapped" class="tab-view hidden space-y-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6 pb-4 border-b border-slate-800">
@@ -206,7 +205,6 @@
               </h2>
             </div>
 
-            <!-- Date Filter for Least Tapped -->
             <div class="flex items-center gap-2 w-full sm:w-auto">
               <label class="text-xs text-slate-400 whitespace-nowrap">Datum:</label>
               <select id="leastTappedDateFilter" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-amber-300 font-medium focus:outline-none focus:border-amber-500 w-full sm:w-auto">
@@ -226,13 +224,13 @@
                 </tr>
               </thead>
               <tbody id="leastTappedTableBody" class="divide-y divide-slate-800/60 font-medium">
-                <!-- Dynamically generated rows -->
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
+      <!-- TAB 3: LEADERBOARD -->
       <div id="viewLeaderboard" class="tab-view hidden space-y-4">
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3 bg-slate-900 p-3 rounded-2xl border border-slate-800">
           <div class="relative w-full sm:w-64">
@@ -246,10 +244,10 @@
         </div>
 
         <div id="leaderboardList" class="space-y-3">
-          <!-- Rendered dynamically -->
         </div>
       </div>
 
+      <!-- TAB 4: MATRIX -->
       <div id="viewMatrix" class="tab-view hidden bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl">
         <div class="mb-4">
           <h3 class="text-lg font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
@@ -263,16 +261,15 @@
           <table class="w-full text-xs text-center border-collapse">
             <thead>
               <tr class="border-b border-slate-800 text-slate-400" id="matrixHeader">
-                <!-- Header columns generated dynamically -->
               </tr>
             </thead>
             <tbody id="matrixBody" class="divide-y divide-slate-800/50">
-              <!-- Matrix rows generated dynamically -->
             </tbody>
           </table>
         </div>
       </div>
 
+      <!-- TAB 5: HISTORY -->
       <div id="viewHistory" class="tab-view hidden space-y-4">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
           <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pb-4 border-b border-slate-800">
@@ -303,13 +300,13 @@
                 </tr>
               </thead>
               <tbody id="historyTableBody" class="divide-y divide-slate-800/60 font-medium text-xs">
-                <!-- Dynamic history rows -->
               </tbody>
             </table>
           </div>
         </div>
       </div>
 
+      <!-- TAB 6: LOG SUB -->
       <div id="viewLog" class="tab-view hidden max-w-xl mx-auto">
         <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 shadow-xl">
           <div class="flex items-center justify-between mb-6 pb-4 border-b border-slate-800">
@@ -421,47 +418,34 @@
     </div>
   </div>
 
-  <!-- FIREBASE AUTOMATED CLOUD CONFIG & SYNC MODAL -->
+  <!-- DATA & CLOUD SYNC MODAL -->
   <div id="dataSyncModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
     <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <div class="flex items-center gap-2">
           <i class="fa-solid fa-cloud text-amber-400 text-lg"></i>
-          <h3 class="font-display uppercase text-white font-bold text-base">Automatska Cloud Baza</h3>
+          <h3 class="font-display uppercase text-white font-bold text-base">Real-Time Cloud Baza</h3>
         </div>
         <button id="closeDataSyncModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <div id="cloudStatusCard" class="p-3.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-xs space-y-1.5">
         <div class="flex items-center justify-between font-bold text-emerald-400">
-          <span class="flex items-center gap-2"><i class="fa-solid fa-wifi text-sm"></i> Real-Time Cloud Sync</span>
-          <span id="activeDeviceCountBadge" class="bg-emerald-500 text-slate-950 px-2 py-0.5 rounded text-[10px] uppercase font-extrabold">Uživo</span>
+          <span class="flex items-center gap-2"><i class="fa-solid fa-wifi text-sm"></i> Uživo Sinkronizirano</span>
         </div>
         <p class="text-slate-300 text-[11px] leading-relaxed">
-          Svi unosi na bilo kojem uređaju se u realnom vremenu sinkroniziraju sa svim ostalim članovima ekipe u cloud bazi.
+          Otvaranje ove stranice s bilo kojeg uređaja (mobitel, laptop, računalo) automatski spaja sve natjecatelje na istu online bazu u realnom vremenu.
         </p>
       </div>
 
       <div class="space-y-3 pt-1">
-        <div class="border border-slate-800 bg-slate-950/60 p-3 rounded-xl space-y-2">
-          <div class="flex items-center justify-between">
-            <span class="text-xs font-bold text-slate-200 flex items-center gap-1.5">
-              <i class="fa-solid fa-share-nodes text-emerald-400"></i> Link Aplikacije za Ekipu
-            </span>
-          </div>
-          <p class="text-[11px] text-slate-400">Pošaljite ovaj link u grupu. Čim netko otvori aplikaciju na mobitelu ili računalu, automatski je spojen bez ikakve registracije ili podešavanja.</p>
-          <button id="copyGroupLinkBtn" class="w-full py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold rounded-xl text-xs flex items-center justify-center gap-2 transition">
-            <i class="fa-solid fa-link text-sm"></i> Kopiraj Link Aplikacije
-          </button>
-        </div>
-
-        <div class="border-t border-slate-800/80 my-2 pt-3">
+        <div>
           <button id="toggleCustomFirebaseBtn" class="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
-            <i class="fa-solid fa-gear"></i> Napredno: Vlastite Firebase Credential postavke
+            <i class="fa-solid fa-gear"></i> Napredno: Prilagođene Firebase Postavke
           </button>
 
           <div id="customFirebaseFields" class="hidden space-y-3 mt-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
-            <label class="block text-[11px] font-semibold uppercase text-slate-400">Zalijepite Custom Firebase Config JSON:</label>
+            <label class="block text-[11px] font-semibold uppercase text-slate-400">Custom Firebase Config JSON:</label>
             <textarea id="customFirebaseConfigInput" rows="4" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500"></textarea>
             <div class="flex gap-2">
               <button id="saveCustomFirebaseBtn" class="w-1/2 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition">
@@ -477,7 +461,7 @@
         <!-- Local Data Backup / Restore -->
         <div class="border-t border-slate-800 my-2 pt-3">
           <div class="flex justify-between items-center mb-2">
-            <span class="text-xs font-semibold text-slate-400">Ručni Sigurnosni JSON Export / Import</span>
+            <span class="text-xs font-semibold text-slate-400">Sigurnosni JSON Export / Import</span>
             <button id="exportJsonBtn" class="text-xs text-amber-400 hover:underline">Kopiraj JSON</button>
           </div>
           <div class="flex gap-2">
@@ -572,22 +556,13 @@
     let isAdminAuthenticated = false;
     let activeRequiredPin = LOG_PIN;
 
-    // APP ID & DEFAULT FALLBACK CONFIG
+    // APP ID & FIREBASE CONFIG
     const appId = typeof __app_id !== 'undefined' ? __app_id : '6am-nogi-sub-challenge-v1';
     
-    // Check for auto-configuration passed via URL Hash parameter (#config=...)
     let firebaseConfig = null;
-    if (window.location.hash.startsWith('#config=')) {
-      try {
-        const encoded = window.location.hash.replace('#config=', '');
-        const decoded = decodeURIComponent(atob(encoded));
-        firebaseConfig = JSON.parse(decoded);
-        localStorage.setItem('nogi_custom_firebase_config', JSON.stringify(firebaseConfig));
-        // Clean hash from URL without reloading
-        history.replaceState(null, null, window.location.pathname);
-      } catch (e) {
-        console.error("Greška pri čitanju konfiguracije iz URL-a:", e);
-      }
+
+    if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+      try { firebaseConfig = JSON.parse(__firebase_config); } catch(e){}
     }
 
     if (!firebaseConfig) {
@@ -597,19 +572,14 @@
       }
     }
 
-    if (!firebaseConfig && typeof __firebase_config !== 'undefined' && __firebase_config) {
-      try { firebaseConfig = JSON.parse(__firebase_config); } catch(e){}
-    }
-
-    // Default Fallback Demo Config if none supplied
     if (!firebaseConfig) {
       firebaseConfig = {
-        apiKey: "demo-api-key",
-        authDomain: "demo-6am-nogi.firebaseapp.com",
-        projectId: "demo-6am-nogi",
-        storageBucket: "demo-6am-nogi.appspot.com",
-        messagingSenderId: "123456789",
-        appId: "1:123456789:web:abcdef"
+        apiKey: "AIzaSyD-PlaceholderForDirectCloudSync",
+        authDomain: "nogi-6am-sub.firebaseapp.com",
+        projectId: "nogi-6am-sub",
+        storageBucket: "nogi-6am-sub.appspot.com",
+        messagingSenderId: "98765432101",
+        appId: "1:98765432101:web:1a2b3c4d5e6f"
       };
     }
 
@@ -620,7 +590,6 @@
     let pendingAction = null;
     let initialLoadComplete = false;
 
-    // Standard public path requirement
     const COLLECTION_PATH = ['artifacts', appId, 'public', 'data', 'submissions'];
 
     window.addEventListener('DOMContentLoaded', async () => {
@@ -635,7 +604,6 @@
         auth = getAuth(app);
         db = getFirestore(app);
 
-        // Authenticate before query
         if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
           await signInWithCustomToken(auth, __initial_auth_token);
         } else {
@@ -644,12 +612,9 @@
 
         const subCol = collection(db, ...COLLECTION_PATH);
 
-        // Real-time listener for all 15 devices
         onSnapshot(subCol, (snapshot) => {
           const previousCount = logs.length;
           logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-
-          // Sort in memory (Rule 2: avoid complex compound queries)
           logs.sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0));
 
           isCloudSyncActive = true;
@@ -667,7 +632,7 @@
         });
 
       } catch (err) {
-        console.warn("Inicijalizacija Firebase-a propala, prebacujem na lokalni mod:", err);
+        console.warn("Inicijalizacija Cloud Baze propala, prebacujem na lokalni mod:", err);
         fallbackToLocalStorage();
       }
     }
@@ -683,10 +648,10 @@
       const badge = document.getElementById('syncBadge');
       if (!badge) return;
       if (online) {
-        badge.className = "text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/30 transition shadow-sm shadow-emerald-500/10";
+        badge.className = "text-[11px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 cursor-pointer hover:bg-emerald-500/30 transition shadow-sm shadow-emerald-500/10";
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-400 pulse-green"></span> <span>Cloud Sync Aktivan</span>`;
       } else {
-        badge.className = "text-[11px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1 rounded-xl font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-amber-500/30 transition";
+        badge.className = "text-[11px] bg-amber-500/20 text-amber-400 border border-amber-500/30 px-3 py-1.5 rounded-xl font-semibold flex items-center gap-1.5 cursor-pointer hover:bg-amber-500/30 transition";
         badge.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-400"></span> <span>Lokalni Način</span>`;
       }
     }
@@ -732,46 +697,17 @@
       });
     }
 
-    function generateShareableLink() {
-      if (!firebaseConfig) return window.location.href;
-      try {
-        const jsonStr = JSON.stringify(firebaseConfig);
-        const encoded = btoa(encodeURIComponent(jsonStr));
-        const baseUrl = window.location.origin + window.location.pathname;
-        return `${baseUrl}#config=${encoded}`;
-      } catch (e) {
-        return window.location.href;
-      }
-    }
-
     function setupEventListeners() {
-      // Sync Modal & Share
+      // Sync Modal - Requires Admin PIN
       document.getElementById('syncBadge')?.addEventListener('click', () => {
-        document.getElementById('dataSyncModal')?.classList.remove('hidden');
-      });
-
-      document.getElementById('dataSyncModalBtn')?.addEventListener('click', () => {
-        document.getElementById('dataSyncModal')?.classList.remove('hidden');
+        forcePIN(ADMIN_PIN, () => {
+          document.getElementById('dataSyncModal')?.classList.remove('hidden');
+        }, "Admin Autorizacija", "Unesi Admin PIN za pristup postavkama baze");
       });
 
       document.getElementById('closeDataSyncModal')?.addEventListener('click', () => {
         document.getElementById('dataSyncModal')?.classList.add('hidden');
       });
-
-      // One-click link sharing for group
-      const copyGroupLinkHandler = () => {
-        const link = generateShareableLink();
-        const tempInput = document.createElement('textarea');
-        tempInput.value = link;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        showToast("Link aplikacije kopiran! Pošaljite ga ekipi.");
-      };
-
-      document.getElementById('shareGroupLinkBtn')?.addEventListener('click', copyGroupLinkHandler);
-      document.getElementById('copyGroupLinkBtn')?.addEventListener('click', copyGroupLinkHandler);
 
       // Custom Firebase Toggle
       document.getElementById('toggleCustomFirebaseBtn')?.addEventListener('click', () => {
@@ -805,7 +741,7 @@
       document.getElementById('historySearch')?.addEventListener('input', renderHistory);
       document.getElementById('historyDateFilter')?.addEventListener('change', renderHistory);
 
-      // Manual Data Export / Import
+      // Export / Import
       document.getElementById('exportJsonBtn')?.addEventListener('click', () => {
         const jsonStr = JSON.stringify(logs, null, 2);
         const tempInput = document.createElement('textarea');
@@ -989,6 +925,52 @@
       });
     }
 
+    function updateAdminUI() {
+      const desktopBtn = document.getElementById('adminStatusBtnDesktop');
+      const mobileBtn = document.getElementById('adminStatusBtnMobile');
+      const lockIcon = document.getElementById('adminLockIcon');
+      const btnText = document.getElementById('adminBtnText');
+      const btnTextMobile = document.getElementById('adminBtnTextMobile');
+
+      if (isAdminAuthenticated) {
+        if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-400";
+        if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-400";
+        if (lockIcon) lockIcon.className = "fa-solid fa-lock-open text-emerald-400";
+        if (btnText) btnText.textContent = "Admin Active";
+        if (btnTextMobile) btnTextMobile.textContent = "Active";
+      } else {
+        if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600";
+        if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400";
+        if (lockIcon) lockIcon.className = "fa-solid fa-lock text-amber-400";
+        if (btnText) btnText.textContent = "Admin";
+        if (btnTextMobile) btnTextMobile.textContent = "Admin";
+      }
+    }
+
+    function promptPIN(requiredPin, callback, title = "Autorizacija", subtitle = "Unesi PIN za autorizaciju") {
+      if ((requiredPin === LOG_PIN && isLogAuthenticated) || (requiredPin === ADMIN_PIN && isAdminAuthenticated)) {
+        if (callback) callback();
+        return;
+      }
+      forcePIN(requiredPin, callback, title, subtitle);
+    }
+
+    function forcePIN(requiredPin, callback, title = "Autorizacija", subtitle = "Unesi PIN za autorizaciju") {
+      activeRequiredPin = requiredPin;
+      pendingAction = callback;
+
+      const modal = document.getElementById('pinModal');
+      const input = document.getElementById('pinInput');
+      const titleEl = document.getElementById('pinModalTitle');
+      const subtitleEl = document.getElementById('pinModalSubtitle');
+
+      if (titleEl) titleEl.textContent = title;
+      if (subtitleEl) subtitleEl.textContent = subtitle;
+      if (input) input.value = '';
+      if (modal) modal.classList.remove('hidden');
+      setTimeout(() => input?.focus(), 100);
+    }
+
     async function handleEditSubmit() {
       const id = document.getElementById('editLogId').value;
       const submitter = document.getElementById('editSubmitter').value;
@@ -1092,49 +1074,6 @@
       }
       document.getElementById('subCountInput').value = 1;
       document.getElementById('subCountModal')?.classList.remove('hidden');
-    }
-
-    function promptPIN(requiredPin, callback, title = "Autorizacija", subtitle = "Unesi PIN za autorizaciju") {
-      if ((requiredPin === LOG_PIN && isLogAuthenticated) || (requiredPin === ADMIN_PIN && isAdminAuthenticated)) {
-        if (callback) callback();
-        return;
-      }
-
-      activeRequiredPin = requiredPin;
-      pendingAction = callback;
-
-      const modal = document.getElementById('pinModal');
-      const input = document.getElementById('pinInput');
-      const titleEl = document.getElementById('pinModalTitle');
-      const subtitleEl = document.getElementById('pinModalSubtitle');
-
-      if (titleEl) titleEl.textContent = title;
-      if (subtitleEl) subtitleEl.textContent = subtitle;
-      if (input) input.value = '';
-      if (modal) modal.classList.remove('hidden');
-      setTimeout(() => input?.focus(), 100);
-    }
-
-    function updateAdminUI() {
-      const desktopBtn = document.getElementById('adminStatusBtnDesktop');
-      const mobileBtn = document.getElementById('adminStatusBtnMobile');
-      const btnText = document.getElementById('adminBtnText');
-      const btnTextMobile = document.getElementById('adminBtnTextMobile');
-      const lockIcon = document.getElementById('adminLockIcon');
-
-      if (isAdminAuthenticated) {
-        if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
-        if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
-        if (lockIcon) lockIcon.className = "fa-solid fa-unlock text-emerald-400";
-        if (btnText) btnText.textContent = "Admin Otključan";
-        if (btnTextMobile) btnTextMobile.textContent = "Admin Otključan";
-      } else {
-        if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600";
-        if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400";
-        if (lockIcon) lockIcon.className = "fa-solid fa-lock text-amber-400";
-        if (btnText) btnText.textContent = "Admin";
-        if (btnTextMobile) btnTextMobile.textContent = "Admin";
-      }
     }
 
     async function handleFormSubmit() {
