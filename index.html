@@ -68,9 +68,6 @@
           <div>
             <h1 class="text-2xl font-display uppercase tracking-wider text-white font-bold flex items-center gap-2">
               Sub Challenge
-              <span id="syncBadge" class="text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase tracking-widest font-sans font-semibold flex items-center gap-1">
-                <span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live Sync
-              </span>
             </h1>
             <p class="text-xs text-slate-400">16 Competitors • 12 Sessions</p>
           </div>
@@ -86,7 +83,7 @@
       <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
         <button id="adminStatusBtnDesktop" class="hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600">
           <i id="adminLockIcon" class="fa-solid fa-lock text-amber-400"></i> 
-          <span id="adminBtnText">Locked (PIN: 1234)</span>
+          <span id="adminBtnText">Admin</span>
         </button>
       </div>
 
@@ -329,11 +326,11 @@
       </div>
       <div>
         <h3 class="font-display uppercase text-white font-bold text-lg">Admin Autorizacija</h3>
-        <p class="text-xs text-slate-400 mt-1">Unesi Admin PIN za unos ili brisanje (Zadani PIN: 1234)</p>
+        <p class="text-xs text-slate-400 mt-1">Unesi Admin PIN za autorizaciju</p>
       </div>
 
       <form id="pinForm" class="space-y-4">
-        <input type="password" id="pinInput" maxlength="6" placeholder="Unesi PIN (npr. 1234)" autofocus class="w-full text-center tracking-widest text-lg bg-slate-950 border border-slate-800 rounded-xl py-3 text-white focus:outline-none focus:border-amber-500">
+        <input type="password" id="pinInput" maxlength="6" placeholder="Unesi PIN" autofocus class="w-full text-center tracking-widest text-lg bg-slate-950 border border-slate-800 rounded-xl py-3 text-white focus:outline-none focus:border-amber-500">
         <div class="flex gap-2">
           <button type="button" id="closePinModal" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
           <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Potvrdi</button>
@@ -439,13 +436,13 @@
 
     function fallbackToLocalStorage() {
       isCloudSyncActive = false;
-      updateSyncBadge(false);
       logs = JSON.parse(localStorage.getItem('nogi_submissions_logs_v2')) || [];
       renderAll();
     }
 
     function updateSyncBadge(online) {
       const badge = document.getElementById('syncBadge');
+      if (!badge) return;
       if (online) {
         badge.className = "text-[10px] bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full uppercase font-semibold flex items-center gap-1";
         badge.innerHTML = `<span class="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span> Live Sync`;
@@ -600,13 +597,13 @@
         if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
         if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-300";
         if (lockIcon) lockIcon.className = "fa-solid fa-unlock text-emerald-400";
-        if (btnText) btnText.textContent = "Admin Unlocked";
-        if (btnTextMobile) btnTextMobile.textContent = "Unlocked";
+        if (btnText) btnText.textContent = "Otključano";
+        if (btnTextMobile) btnTextMobile.textContent = "Otključano";
       } else {
         if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600";
         if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400";
         if (lockIcon) lockIcon.className = "fa-solid fa-lock text-amber-400";
-        if (btnText) btnText.textContent = "Locked (PIN: 1234)";
+        if (btnText) btnText.textContent = "Admin";
         if (btnTextMobile) btnTextMobile.textContent = "Admin";
       }
     }
