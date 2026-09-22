@@ -180,8 +180,8 @@
                 <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
                   <th class="py-3.5 px-4 rounded-l-xl">Rang</th>
                   <th class="py-3.5 px-4">Natjecatelj</th>
-                  <th class="py-3.5 px-4 text-center">Dolasci</th>
                   <th class="py-3.5 px-4 text-center">Ukupno Sub-ova</th>
+                  <th class="py-3.5 px-4 text-center">Dolasci</th>
                   <th class="py-3.5 px-4 text-center">Različitih Protivnika</th>
                   <th class="py-3.5 px-4 text-center">Najdraža Žrtva</th>
                   <th class="py-3.5 px-4 text-center rounded-r-xl">Najteži Protivnik</th>
@@ -219,8 +219,8 @@
                 <tr class="border-b border-slate-800 text-xs font-semibold uppercase tracking-wider text-slate-400 bg-slate-950/50">
                   <th class="py-3.5 px-4 rounded-l-xl">Rang</th>
                   <th class="py-3.5 px-4">Natjecatelj</th>
-                  <th class="py-3.5 px-4 text-center">Dolasci</th>
                   <th class="py-3.5 px-4 text-center">Popušeno</th>
+                  <th class="py-3.5 px-4 text-center">Dolasci</th>
                   <th class="py-3.5 px-4 text-center rounded-r-xl">Najteži Protivnik</th>
                 </tr>
               </thead>
@@ -1251,14 +1251,14 @@
           <td class="py-3 px-4 font-bold">${rankBadge}</td>
           <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
           <td class="py-3 px-4 text-center">
-            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-amber-300 hover:border-amber-500/50 font-medium text-xs transition cursor-pointer">
-              <i class="fa-solid fa-calendar-check text-amber-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
-            </button>
-          </td>
-          <td class="py-3 px-4 text-center">
             <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-amber-400 font-bold text-sm">
               ${player.totalWins}
             </span>
+          </td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-amber-300 hover:border-amber-500/50 font-medium text-xs transition cursor-pointer">
+              <i class="fa-solid fa-calendar-check text-amber-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
+            </button>
           </td>
           <td class="py-3 px-4 text-center text-slate-300">${player.uniqueVictims} / ${COMPETITORS.length - 1}</td>
           <td class="py-3 px-4 text-center text-xs text-amber-300/90 font-medium">${player.favoriteVictimText}</td>
@@ -1325,14 +1325,14 @@
           <td class="py-3 px-4 font-bold">${rankBadge}</td>
           <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
           <td class="py-3 px-4 text-center">
-            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/50 font-medium text-xs transition cursor-pointer">
-              <i class="fa-solid fa-calendar-check text-emerald-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
-            </button>
-          </td>
-          <td class="py-3 px-4 text-center">
             <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 ${player.totalLosses === 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold text-sm">
               ${player.totalLosses}
             </span>
+          </td>
+          <td class="py-3 px-4 text-center">
+            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/50 font-medium text-xs transition cursor-pointer">
+              <i class="fa-solid fa-calendar-check text-emerald-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
+            </button>
           </td>
           <td class="py-3 px-4 text-center text-xs font-medium text-slate-300">${player.executionerText}</td>
         `;
@@ -1406,32 +1406,37 @@
           const card = document.createElement('div');
           card.className = `bg-slate-900 border ${borderHighlight} rounded-2xl p-4 transition hover:border-slate-700 shadow-md`;
           card.innerHTML = `
-            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <!-- Competitor Info & Big Sub-ovi Badge -->
               <div class="flex items-center space-x-3">
                 ${rankBadge}
-                <div>
-                  <h4 class="font-bold text-slate-100 text-base">${player.name}</h4>
-                  <p class="text-xs text-slate-400">6am NOGI Borac</p>
+                <div class="flex items-center gap-3 flex-wrap">
+                  <div>
+                    <h4 class="font-bold text-slate-100 text-base sm:text-lg">${player.name}</h4>
+                    <p class="text-xs text-slate-400">6am NOGI Borac</p>
+                  </div>
+                  
+                  <!-- Prominent Sub-ovi Badge Next to Name -->
+                  <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/40 px-3.5 py-1.5 rounded-xl text-amber-400 shadow-inner">
+                    <i class="fa-solid fa-trophy text-amber-400 text-base sm:text-lg"></i>
+                    <div class="flex items-baseline gap-1">
+                      <span class="text-xl sm:text-2xl font-black text-amber-400 leading-none">${player.totalWins}</span>
+                      <span class="text-[10px] font-bold uppercase tracking-wider text-amber-300/80">Sub-ovi</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <!-- Stat Badges Grid displaying session averages -->
-              <div class="grid grid-cols-3 gap-2 w-full lg:w-auto">
-                <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="flex flex-col items-center justify-center bg-slate-950/80 hover:bg-slate-800 px-3 py-2 rounded-xl border border-slate-800/80 hover:border-amber-500/50 transition cursor-pointer text-center">
+              <!-- Stat Badges for Dolasci and Sub/Trening -->
+              <div class="flex items-center gap-2 w-full sm:w-auto">
+                <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="flex-1 sm:flex-none flex flex-col items-center justify-center bg-slate-950/80 hover:bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-800/80 hover:border-amber-500/50 transition cursor-pointer text-center min-w-[95px]">
                   <span class="text-[10px] uppercase text-slate-400 font-semibold flex items-center gap-1">
                     <i class="fa-solid fa-calendar-check text-amber-400"></i> Dolasci
                   </span>
                   <span class="text-sm font-bold text-slate-200 mt-0.5">${player.attendedDates}/${DATES.length}</span>
                 </button>
 
-                <div class="flex flex-col items-center justify-center bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 text-center">
-                  <span class="text-[10px] uppercase text-slate-400 font-semibold flex items-center gap-1">
-                    <i class="fa-solid fa-trophy text-amber-400"></i> Sub-ovi
-                  </span>
-                  <span class="text-sm font-extrabold text-amber-400 mt-0.5">${player.totalWins}</span>
-                </div>
-
-                <div class="flex flex-col items-center justify-center bg-slate-950/80 px-3 py-2 rounded-xl border border-slate-800/80 text-center" title="Prosječan broj submissiona po dolasku">
+                <div class="flex-1 sm:flex-none flex flex-col items-center justify-center bg-slate-950/80 px-3.5 py-2 rounded-xl border border-slate-800/80 text-center min-w-[95px]" title="Prosječan broj submissiona po dolasku">
                   <span class="text-[10px] uppercase text-slate-400 font-semibold flex items-center gap-1">
                     <i class="fa-solid fa-bolt text-amber-400"></i> Sub / Trening
                   </span>
