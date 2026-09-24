@@ -5,10 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>6am NOGI - Sub Challenge</title>
   
-  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
-  
-  <!-- FontAwesome Icons -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   
   <!-- Fonts -->
@@ -68,11 +65,13 @@
         box-shadow: 0 0 0 0 rgba(16, 185, 129, 0);
       }
     }
+    input[type="date"] {
+      color-scheme: dark;
+    }
   </style>
 </head>
 <body class="bg-slate-950 text-slate-100 font-sans min-h-screen flex flex-col antialiased">
 
-  <!-- HEADER & APP BAR -->
   <header class="bg-slate-900 border-b border-slate-800 sticky top-0 z-50 shadow-md">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-4">
       
@@ -113,7 +112,6 @@
 
   <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
 
-    <!-- NAVIGATION TABS & STATS BAR -->
     <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-slate-900 p-2 rounded-2xl border border-slate-800 shadow-lg">
       
       <!-- Nav Tabs -->
@@ -142,6 +140,10 @@
           <i class="fa-solid fa-plus-circle"></i>
           Log Sub
         </button>
+        <button data-tab="admin" id="adminTabBtn" class="tab-btn hidden px-4 py-2 text-sm font-medium rounded-xl text-slate-400 hover:text-slate-200 hover:bg-slate-800 transition flex items-center gap-2">
+          <i class="fa-solid fa-user-shield"></i>
+          Admin Panel
+        </button>
       </nav>
 
       <!-- Global Stats -->
@@ -150,7 +152,6 @@
       </div>
     </div>
 
-    <!-- TAB VIEWS CONTAINER -->
     <div id="tabContainer">
 
       <!-- TAB 1: TABLICA SUBOVA -->
@@ -345,13 +346,9 @@
             </div>
 
             <div>
-              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Datum Treninga</label>
-              <div class="relative">
-                <select id="formDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-amber-300 font-semibold focus:outline-none focus:border-amber-500 appearance-none">
-                </select>
-                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
-                  <i class="fa-solid fa-calendar-day text-xs"></i>
-                </div>
+              <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Datum</label>
+              <div id="formDateContainer">
+                <!-- Dynamically rendered based on useCustomDatePicker state -->
               </div>
             </div>
 
@@ -360,6 +357,63 @@
               Spremi Submission
             </button>
           </form>
+        </div>
+      </div>
+
+      <!-- TAB 7: ADMIN PANEL -->
+      <div id="viewAdmin" class="tab-view hidden space-y-6">
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <!-- Users Column -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl">
+            <h3 class="font-display uppercase text-white font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-users text-amber-400"></i> Natjecatelji</h3>
+            <div class="flex gap-2 mb-4">
+              <input type="text" id="newUserName" placeholder="Novi natjecatelj" class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+              <button id="addUserBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition"><i class="fa-solid fa-plus"></i></button>
+            </div>
+            <ul id="adminUsersList" class="space-y-2 max-h-64 overflow-y-auto pr-2 text-xs"></ul>
+          </div>
+          
+          <!-- Dates Column -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col justify-between">
+             <div>
+               <h3 class="font-display uppercase text-white font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-calendar-days text-amber-400"></i> Datumi</h3>
+               <div id="dateAddControls" class="space-y-2 mb-4">
+                 <div class="flex gap-2">
+                   <input type="text" id="newDateVal" placeholder="npr. 01.11." class="flex-1 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+                   <button id="addDateBtn" type="button" class="bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold px-3 py-2 rounded-xl text-xs transition"><i class="fa-solid fa-plus"></i></button>
+                 </div>
+               </div>
+               <ul id="adminDatesList" class="space-y-2 max-h-48 overflow-y-auto pr-2 text-xs mb-4"></ul>
+             </div>
+
+             <!-- Datepicker Checkbox Toggle -->
+             <div class="pt-3 border-t border-slate-800">
+               <label class="flex items-center gap-2.5 text-xs text-slate-300 cursor-pointer select-none">
+                 <input type="checkbox" id="useCustomDatePickerCheckbox" class="rounded bg-slate-950 border-slate-700 text-amber-500 focus:ring-amber-500 w-4 h-4 cursor-pointer">
+                 <span class="font-medium">Omogući slobodan odabir datuma iz kalendara (Datepicker)</span>
+               </label>
+             </div>
+          </div>
+          
+          <!-- PIN & Settings Column -->
+          <div class="bg-slate-900 border border-slate-800 rounded-2xl p-5 shadow-xl flex flex-col">
+             <h3 class="font-display uppercase text-white font-bold mb-4 flex items-center gap-2"><i class="fa-solid fa-key text-amber-400"></i> Postavke (Admin)</h3>
+             <div class="space-y-4">
+               <div>
+                 <label class="block text-[11px] font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Novi Admin PIN</label>
+                 <input type="password" id="newAdminPin" maxlength="6" placeholder="Unesi novi PIN" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+               </div>
+               <button id="changePinBtn" type="button" class="w-full bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 font-bold px-3 py-2.5 rounded-xl text-xs transition flex items-center justify-center gap-2">
+                 <i class="fa-solid fa-floppy-disk"></i> Spremi Novi PIN
+               </button>
+               
+               <div class="pt-4 border-t border-slate-800">
+                  <p class="text-[10px] text-slate-500 leading-relaxed">
+                    Izmjene natjecatelja i datuma primjenjuju se globalno i sinkroniziraju se na sve uređaje u stvarnom vremenu.
+                  </p>
+               </div>
+             </div>
+          </div>
         </div>
       </div>
 
@@ -374,7 +428,7 @@
       </div>
       <div>
         <h3 id="pinModalTitle" class="font-display uppercase text-white font-bold text-lg">Autorizacija</h3>
-        <p id="pinModalSubtitle" class="text-xs text-slate-400 mt-1">Unesi PIN za autorizaciju</p>
+        <p id="pinModalSubtitle" class="text-xs text-slate-400 mt-1 hidden"></p>
       </div>
 
       <form id="pinForm" class="space-y-4">
@@ -382,6 +436,75 @@
         <div class="flex gap-2">
           <button type="button" id="closePinModal" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
           <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Potvrdi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- DELETE COMPETITOR WITH PIN MODAL -->
+  <div id="deleteCompetitorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-rose-500/40 w-full max-w-sm rounded-2xl p-6 shadow-2xl space-y-4 text-center">
+      <div class="w-12 h-12 bg-rose-500/10 border border-rose-500/30 text-rose-400 rounded-2xl flex items-center justify-center mx-auto text-xl">
+        <i class="fa-solid fa-triangle-exclamation"></i>
+      </div>
+      <div>
+        <h3 class="font-display uppercase text-white font-bold text-base">Brisanje Natjecatelja</h3>
+        <p id="deleteCompetitorWarning" class="text-xs text-slate-300 mt-2 leading-relaxed">
+          Oprez! Brisanje natjecatelja trajno će obrisati sve njegove submissione i sve submissione zabilježene protiv njega!
+        </p>
+      </div>
+
+      <form id="deleteCompetitorForm" class="space-y-4">
+        <input type="hidden" id="deleteCompetitorTargetName">
+        <div>
+          <label class="block text-[11px] font-semibold uppercase text-slate-400 mb-1">Unesi Admin PIN za potvrdu</label>
+          <input type="password" id="deleteCompetitorPinInput" maxlength="6" placeholder="Admin PIN" required class="w-full text-center tracking-widest text-base bg-slate-950 border border-slate-800 rounded-xl py-2.5 text-white focus:outline-none focus:border-rose-500">
+        </div>
+        <div class="flex gap-2">
+          <button type="button" id="closeDeleteCompetitorModal" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold transition">Trajno Obriši</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT COMPETITOR MODAL -->
+  <div id="editCompetitorModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-display uppercase text-white font-bold text-base">Uredi Natjecatelja</h3>
+        <button id="closeEditCompetitorModal" type="button" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form id="editCompetitorForm" class="space-y-4">
+        <input type="hidden" id="editCompetitorOldName">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Novo ime natjecatelja</label>
+          <input type="text" id="editCompetitorNewNameInput" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="cancelEditCompetitorBtn" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Spremi</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- EDIT DATE MODAL -->
+  <div id="editDateModal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-md z-50 flex items-center justify-center hidden p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-sm rounded-2xl p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+        <h3 class="font-display uppercase text-white font-bold text-base">Uredi Datum</h3>
+        <button id="closeEditDateModal" type="button" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+      </div>
+      <form id="editDateForm" class="space-y-4">
+        <input type="hidden" id="editDateOldVal">
+        <div>
+          <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Novi datum</label>
+          <input type="text" id="editDateNewValInput" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-500">
+        </div>
+        <div class="flex gap-2 pt-2">
+          <button type="button" id="cancelEditDateBtn" class="w-1/2 py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition">Odustani</button>
+          <button type="submit" class="w-1/2 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded-xl text-xs font-bold transition">Spremi</button>
         </div>
       </form>
     </div>
@@ -427,7 +550,7 @@
           <i class="fa-solid fa-cloud text-amber-400 text-lg"></i>
           <h3 class="font-display uppercase text-white font-bold text-base">Real-Time Cloud Baza</h3>
         </div>
-        <button id="closeDataSyncModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button id="closeDataSyncModal" type="button" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <div id="cloudStatusCard" class="p-3.5 rounded-xl border bg-emerald-500/10 border-emerald-500/30 text-xs space-y-1.5">
@@ -441,7 +564,7 @@
 
       <div class="space-y-3 pt-1">
         <div>
-          <button id="toggleCustomFirebaseBtn" class="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
+          <button id="toggleCustomFirebaseBtn" type="button" class="text-xs text-amber-400 hover:text-amber-300 font-semibold flex items-center gap-1">
             <i class="fa-solid fa-gear"></i> Napredno: Prilagođene Firebase Postavke
           </button>
 
@@ -449,10 +572,10 @@
             <label class="block text-[11px] font-semibold uppercase text-slate-400">Custom Firebase Config JSON / JS:</label>
             <textarea id="customFirebaseConfigInput" rows="4" placeholder='{"apiKey": "...", "authDomain": "...", "projectId": "..."}' class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 font-mono focus:outline-none focus:border-amber-500"></textarea>
             <div class="flex gap-2">
-              <button id="saveCustomFirebaseBtn" class="w-1/2 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition">
+              <button id="saveCustomFirebaseBtn" type="button" class="w-1/2 py-2 bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold rounded-xl text-xs transition">
                 Spremi I Poveži
               </button>
-              <button id="resetFirebaseBtn" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition">
+              <button id="resetFirebaseBtn" type="button" class="w-1/2 py-2 bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold rounded-xl text-xs transition">
                 Vrati Zadano
               </button>
             </div>
@@ -463,11 +586,11 @@
         <div class="border-t border-slate-800 my-2 pt-3">
           <div class="flex justify-between items-center mb-2">
             <span class="text-xs font-semibold text-slate-400">Sigurnosni JSON Export / Import</span>
-            <button id="exportJsonBtn" class="text-xs text-amber-400 hover:underline">Kopiraj JSON</button>
+            <button id="exportJsonBtn" type="button" class="text-xs text-amber-400 hover:underline">Kopiraj JSON</button>
           </div>
           <div class="flex gap-2">
             <input type="text" id="importJsonInput" placeholder="Zalijepi JSON za uvoz..." class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200">
-            <button id="importJsonBtn" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700">Uvezi</button>
+            <button id="importJsonBtn" type="button" class="px-3 py-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 font-bold text-xs rounded-xl border border-slate-700">Uvezi</button>
           </div>
         </div>
       </div>
@@ -479,7 +602,7 @@
     <div class="bg-slate-900 border border-slate-800 w-full max-w-md rounded-2xl p-5 shadow-2xl space-y-4">
       <div class="flex items-center justify-between border-b border-slate-800 pb-3">
         <h3 id="modalTitle" class="font-display uppercase text-white font-bold text-base">Detalji Dvoboja</h3>
-        <button id="closeModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button id="closeModal" type="button" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
       <div id="modalMatchList" class="space-y-2 max-h-60 overflow-y-auto pr-1 text-xs">
       </div>
@@ -494,7 +617,7 @@
           <i class="fa-solid fa-pen-to-square text-amber-400 text-lg"></i>
           <h3 class="font-display uppercase text-white font-bold text-base">Uredi Submission</h3>
         </div>
-        <button id="closeEditModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button id="closeEditModal" type="button" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <form id="editSubForm" class="space-y-4">
@@ -512,7 +635,9 @@
 
         <div>
           <label class="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1">Datum</label>
-          <select id="editDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-amber-300 text-xs font-semibold focus:outline-none focus:border-amber-500"></select>
+          <div id="editDateContainer">
+            <!-- Dynamically rendered based on useCustomDatePicker state -->
+          </div>
         </div>
 
         <div class="flex gap-2 pt-2">
@@ -531,7 +656,7 @@
           <i class="fa-solid fa-calendar-days text-amber-400 text-lg"></i>
           <h3 id="attendanceModalTitle" class="font-display uppercase text-white font-bold text-base">Dolasci na Trening</h3>
         </div>
-        <button id="closeAttendanceModal" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
+        <button id="closeAttendanceModal" type="button" class="text-slate-400 hover:text-white"><i class="fa-solid fa-xmark text-lg"></i></button>
       </div>
 
       <div id="attendanceModalSummary" class="text-xs text-slate-400">
@@ -548,29 +673,27 @@
     <span id="toastMsg" class="text-xs font-medium">Uspješno spremljeno</span>
   </div>
 
-  <!-- FIREBASE & APPLICATION LOGIC -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getFirestore, collection, onSnapshot, addDoc, deleteDoc, updateDoc, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-    // APPLICATION CONSTANTS
-    const ADMIN_PIN = "2106";
+    let ADMIN_PIN = "2106";
     const LOG_PIN = "1234";
 
-    // EXACT USER-PROVIDED COMPETITOR LIST
-    const COMPETITORS = [
+    let COMPETITORS = [
       "Markulin", "Gedžo", "Hrvoje", "Marko", "Martin", "Jakov", 
       "Peša", "Ante", "Nikola", "Denis", "Kristijan", 
       "Davor", "Dean", "Fiškal", "Matija", "Tin", "Mladen", "Šime"
     ];
 
-    const DATES = [
+    let DATES = [
       "22.09.", "24.09.", "29.09.", "01.10.", "06.10.", "08.10.",
       "13.10.", "15.10.", "20.10.", "22.10.", "27.10.", "29.10."
     ];
 
-    // HARDCODED CUSTOM FIREBASE CONFIG FROM USER (am-nogi PROJECT)
+    let useCustomDatePicker = false;
+
     let firebaseConfig = JSON.parse(localStorage.getItem('nogi_custom_firebase_config'));
 
     if (!firebaseConfig) {
@@ -608,8 +731,30 @@
 
         await signInAnonymously(auth);
 
-        const subCol = collection(db, "submissions");
+        const configRef = doc(db, "appConfig", "global");
+        onSnapshot(configRef, (docSnap) => {
+          if (docSnap.exists()) {
+            const data = docSnap.data();
+            COMPETITORS = data.competitors || COMPETITORS;
+            DATES = data.dates || DATES;
+            ADMIN_PIN = data.adminPin || ADMIN_PIN;
+            useCustomDatePicker = typeof data.useCustomDatePicker === 'boolean' ? data.useCustomDatePicker : useCustomDatePicker;
+            
+            initFormSelects();
+            renderAll();
+          } else {
+            setDoc(configRef, {
+              competitors: COMPETITORS,
+              dates: DATES,
+              adminPin: ADMIN_PIN,
+              useCustomDatePicker: useCustomDatePicker
+            });
+          }
+        }, (err) => {
+          console.warn("Greška pri čitanju konfiguracije", err);
+        });
 
+        const subCol = collection(db, "submissions");
         onSnapshot(subCol, (snapshot) => {
           const previousCount = logs.length;
           logs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
@@ -635,6 +780,42 @@
       }
     }
 
+    function loadLocalConfig() {
+       const conf = JSON.parse(localStorage.getItem('nogi_app_config'));
+       if(conf) {
+         if(conf.competitors) COMPETITORS = conf.competitors;
+         if(conf.dates) DATES = conf.dates;
+         if(conf.adminPin) ADMIN_PIN = conf.adminPin;
+         if(typeof conf.useCustomDatePicker === 'boolean') useCustomDatePicker = conf.useCustomDatePicker;
+       }
+    }
+
+    async function saveAppConfig() {
+      if (isCloudSyncActive && db) {
+        try {
+          await setDoc(doc(db, "appConfig", "global"), {
+            competitors: COMPETITORS,
+            dates: DATES,
+            adminPin: ADMIN_PIN,
+            useCustomDatePicker: useCustomDatePicker
+          });
+          showToast("Konfiguracija sinkronizirana u Cloud!");
+        } catch(e) {
+          showToast("Greška pri sinkronizaciji postavki", true);
+        }
+      } else {
+        localStorage.setItem('nogi_app_config', JSON.stringify({
+          competitors: COMPETITORS,
+          dates: DATES,
+          adminPin: ADMIN_PIN,
+          useCustomDatePicker: useCustomDatePicker
+        }));
+        showToast("Konfiguracija spremljena lokalno!");
+        initFormSelects();
+        renderAll();
+      }
+    }
+
     function fallbackToLocalStorage() {
       isCloudSyncActive = false;
       updateSyncBadge(false);
@@ -648,8 +829,10 @@
           Provjerite je li vaša baza stvorena u Firestore-u s omogućenim Anonymous Auth i Security Rules postavljenim na read/write.
         `;
       }
-
+      
+      loadLocalConfig();
       logs = JSON.parse(localStorage.getItem('nogi_submissions_logs_v2')) || [];
+      initFormSelects();
       renderAll();
     }
 
@@ -675,22 +858,24 @@
     function initFormSelects() {
       const submitterSelect = document.getElementById('formSubmitter');
       const victimSelect = document.getElementById('formVictim');
-      const dateSelect = document.getElementById('formDate');
+      const formDateContainer = document.getElementById('formDateContainer');
+      const editDateContainer = document.getElementById('editDateContainer');
+      
       const tablicaFilter = document.getElementById('tablicaDateFilter');
       const leastTappedFilter = document.getElementById('leastTappedDateFilter');
       const historyDateFilter = document.getElementById('historyDateFilter');
       const editSubmitter = document.getElementById('editSubmitter');
       const editVictim = document.getElementById('editVictim');
-      const editDate = document.getElementById('editDate');
 
-      if (!submitterSelect || !victimSelect || !dateSelect) return;
+      if (!submitterSelect || !victimSelect || !formDateContainer) return;
+
+      const currSubmitter = submitterSelect.value;
+      const currVictim = victimSelect.value;
 
       submitterSelect.innerHTML = '';
       victimSelect.innerHTML = '';
-      dateSelect.innerHTML = '<option value="" disabled selected>-- Odaberi datum --</option>';
       if (editSubmitter) editSubmitter.innerHTML = '';
       if (editVictim) editVictim.innerHTML = '';
-      if (editDate) editDate.innerHTML = '<option value="" disabled>-- Odaberi datum --</option>';
 
       if (tablicaFilter) tablicaFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
       if (leastTappedFilter) leastTappedFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
@@ -703,22 +888,88 @@
         if (editVictim) editVictim.add(new Option(comp, comp));
       });
 
-      submitterSelect.value = COMPETITORS[0];
-      victimSelect.value = COMPETITORS[1];
+      if (COMPETITORS.includes(currSubmitter)) submitterSelect.value = currSubmitter;
+      else if (COMPETITORS.length > 0) submitterSelect.value = COMPETITORS[0];
 
-      DATES.forEach(d => {
-        dateSelect.add(new Option(d, d));
-        if (editDate) editDate.add(new Option(d, d));
-        if (tablicaFilter) tablicaFilter.add(new Option(d, d));
-        if (leastTappedFilter) leastTappedFilter.add(new Option(d, d));
-        if (historyDateFilter) historyDateFilter.add(new Option(d, d));
-      });
+      if (COMPETITORS.includes(currVictim)) victimSelect.value = currVictim;
+      else if (COMPETITORS.length > 1) victimSelect.value = COMPETITORS[1];
+      else if (COMPETITORS.length > 0) victimSelect.value = COMPETITORS[0];
 
-      dateSelect.value = "";
+      if (useCustomDatePicker) {
+        formDateContainer.innerHTML = `
+          <input type="date" id="formDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-amber-300 font-semibold focus:outline-none focus:border-amber-500 cursor-pointer block">
+        `;
+        if (editDateContainer) {
+          editDateContainer.innerHTML = `
+            <input type="date" id="editDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-amber-300 text-xs font-semibold focus:outline-none focus:border-amber-500 cursor-pointer block">
+          `;
+        }
+      } else {
+        let optionsHtml = '<option value="" disabled selected>-- Odaberi datum --</option>';
+        DATES.forEach(d => {
+          optionsHtml += `<option value="${d}">${d}</option>`;
+          if (tablicaFilter) tablicaFilter.add(new Option(d, d));
+          if (leastTappedFilter) leastTappedFilter.add(new Option(d, d));
+          if (historyDateFilter) historyDateFilter.add(new Option(d, d));
+        });
+
+        formDateContainer.innerHTML = `
+          <div class="relative">
+            <select id="formDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3.5 py-3 text-amber-300 font-semibold focus:outline-none focus:border-amber-500 appearance-none">
+              ${optionsHtml}
+            </select>
+            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-3.5 text-slate-500">
+              <i class="fa-solid fa-chevron-down text-xs"></i>
+            </div>
+          </div>
+        `;
+
+        if (editDateContainer) {
+          editDateContainer.innerHTML = `
+            <select id="editDate" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-amber-300 text-xs font-semibold focus:outline-none focus:border-amber-500">
+              ${optionsHtml}
+            </select>
+          `;
+        }
+      }
+
+      const allUniqueDates = Array.from(new Set([...DATES, ...logs.map(l => l.date).filter(Boolean)]));
+      allUniqueDates.sort();
+      
+      if (tablicaFilter && tablicaFilter.options.length <= 1) {
+        allUniqueDates.forEach(d => {
+          if (!Array.from(tablicaFilter.options).some(o => o.value === d)) {
+            tablicaFilter.add(new Option(d, d));
+            if (leastTappedFilter) leastTappedFilter.add(new Option(d, d));
+            if (historyDateFilter) historyDateFilter.add(new Option(d, d));
+          }
+        });
+      }
+
+      const checkbox = document.getElementById('useCustomDatePickerCheckbox');
+      if (checkbox) checkbox.checked = useCustomDatePicker;
+      updateAdminDateControlsState();
+    }
+
+    function updateAdminDateControlsState() {
+      const controls = document.getElementById('dateAddControls');
+      const list = document.getElementById('adminDatesList');
+      if (controls && list) {
+        if (useCustomDatePicker) {
+          controls.style.opacity = '0.4';
+          controls.style.pointerEvents = 'none';
+          list.style.opacity = '0.4';
+          list.style.pointerEvents = 'none';
+        } else {
+          controls.style.opacity = '1';
+          controls.style.pointerEvents = 'auto';
+          list.style.opacity = '1';
+          list.style.pointerEvents = 'auto';
+        }
+      }
     }
 
     function setupEventListeners() {
-      // Sync Modal - Requires Admin PIN always
       document.getElementById('syncBadge')?.addEventListener('click', () => {
         forcePIN(ADMIN_PIN, () => {
           document.getElementById('dataSyncModal')?.classList.remove('hidden');
@@ -729,7 +980,6 @@
         document.getElementById('dataSyncModal')?.classList.add('hidden');
       });
 
-      // Custom Firebase Toggle
       document.getElementById('toggleCustomFirebaseBtn')?.addEventListener('click', () => {
         const customFields = document.getElementById('customFirebaseFields');
         if (customFields) customFields.classList.toggle('hidden');
@@ -765,11 +1015,6 @@
         setTimeout(() => window.location.reload(), 1000);
       });
 
-      // History filters
-      document.getElementById('historySearch')?.addEventListener('input', renderHistory);
-      document.getElementById('historyDateFilter')?.addEventListener('change', renderHistory);
-
-      // Export / Import
       document.getElementById('exportJsonBtn')?.addEventListener('click', () => {
         const jsonStr = JSON.stringify(logs, null, 2);
         const tempInput = document.createElement('textarea');
@@ -813,20 +1058,50 @@
         }
       });
 
-      // Edit Sub Modal Listeners
       document.getElementById('closeEditModal')?.addEventListener('click', () => {
         document.getElementById('editSubModal').classList.add('hidden');
       });
       document.getElementById('cancelEditBtn')?.addEventListener('click', () => {
         document.getElementById('editSubModal').classList.add('hidden');
       });
-
       document.getElementById('editSubForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
         handleEditSubmit();
       });
 
-      // Form submitter change listener
+      // Competitor Edit Modal Listeners
+      document.getElementById('closeEditCompetitorModal')?.addEventListener('click', () => {
+        document.getElementById('editCompetitorModal').classList.add('hidden');
+      });
+      document.getElementById('cancelEditCompetitorBtn')?.addEventListener('click', () => {
+        document.getElementById('editCompetitorModal').classList.add('hidden');
+      });
+      document.getElementById('editCompetitorForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitEditCompetitor();
+      });
+
+      // Date Edit Modal Listeners
+      document.getElementById('closeEditDateModal')?.addEventListener('click', () => {
+        document.getElementById('editDateModal').classList.add('hidden');
+      });
+      document.getElementById('cancelEditDateBtn')?.addEventListener('click', () => {
+        document.getElementById('editDateModal').classList.add('hidden');
+      });
+      document.getElementById('editDateForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        submitEditDate();
+      });
+
+      // Delete Competitor Modal Listeners
+      document.getElementById('closeDeleteCompetitorModal')?.addEventListener('click', () => {
+        document.getElementById('deleteCompetitorModal').classList.add('hidden');
+      });
+      document.getElementById('deleteCompetitorForm')?.addEventListener('submit', (e) => {
+        e.preventDefault();
+        confirmDeleteCompetitor();
+      });
+
       document.getElementById('formSubmitter')?.addEventListener('change', (e) => {
         const selectedSubmitter = e.target.value;
         const victimSelect = document.getElementById('formVictim');
@@ -837,19 +1112,25 @@
           victimSelect.add(new Option(comp, comp));
         });
 
-        if (currentVictim !== selectedSubmitter) {
+        if (currentVictim !== selectedSubmitter && COMPETITORS.includes(currentVictim)) {
           victimSelect.value = currentVictim;
         }
       });
 
-      // Form Submission
       document.getElementById('subForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
         const submitter = document.getElementById('formSubmitter').value;
         const victim = document.getElementById('formVictim').value;
-        const date = document.getElementById('formDate').value;
+        let dateVal = document.getElementById('formDate')?.value;
 
-        if (!date) {
+        if (useCustomDatePicker && dateVal) {
+          const parts = dateVal.split('-');
+          if (parts.length === 3) {
+            dateVal = `${parts[2]}.${parts[1]}.`;
+          }
+        }
+
+        if (!dateVal) {
           showToast("Datum treninga nije odabran!", true);
           return;
         }
@@ -862,7 +1143,6 @@
         promptPIN(LOG_PIN, () => openSubCountModal(), "Autorizacija Unosa", "Unesi PIN za unos submissiona");
       });
 
-      // Sub count modal quick select buttons
       document.querySelectorAll('.sub-count-pill').forEach(btn => {
         btn.addEventListener('click', () => {
           const val = btn.getAttribute('data-val');
@@ -881,20 +1161,67 @@
         handleFormSubmit();
       });
 
-      // Admin Lock Buttons
+      document.getElementById('addUserBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('newUserName');
+        const name = input?.value.trim();
+        if (name && !COMPETITORS.includes(name)) {
+          COMPETITORS.push(name);
+          saveAppConfig();
+          input.value = '';
+        } else if (COMPETITORS.includes(name)) {
+          showToast("Korisnik već postoji!", true);
+        }
+      });
+
+      document.getElementById('addDateBtn')?.addEventListener('click', () => {
+        if (useCustomDatePicker) return;
+        const input = document.getElementById('newDateVal');
+        const val = input?.value.trim();
+        if (val && !DATES.includes(val)) {
+          DATES.push(val);
+          saveAppConfig();
+          input.value = '';
+        } else if (DATES.includes(val)) {
+          showToast("Datum već postoji!", true);
+        }
+      });
+
+      document.getElementById('useCustomDatePickerCheckbox')?.addEventListener('change', (e) => {
+        useCustomDatePicker = e.target.checked;
+        saveAppConfig();
+        initFormSelects();
+      });
+
+      document.getElementById('changePinBtn')?.addEventListener('click', () => {
+        const input = document.getElementById('newAdminPin');
+        const val = input?.value.trim();
+        if (val && val.length >= 4) {
+          ADMIN_PIN = val;
+          saveAppConfig();
+          input.value = '';
+          showToast("Admin PIN uspješno promijenjen!");
+        } else {
+          showToast("PIN mora imati barem 4 znaka!", true);
+        }
+      });
+
       const toggleAdmin = () => {
         if (isAdminAuthenticated) {
           isAdminAuthenticated = false;
           updateAdminUI();
           showToast("Admin sesija zaključana.");
         } else {
-          promptPIN(ADMIN_PIN, () => {}, "Admin Autorizacija", "Unesi Admin PIN za uređivanje/brisanje");
+          promptPIN(ADMIN_PIN, () => {
+            isAdminAuthenticated = true;
+            updateAdminUI();
+            showToast("Admin autoriziran!");
+            document.querySelector('.tab-btn[data-tab="admin"]')?.click();
+          }, "Admin Autorizacija", "");
         }
       };
       document.getElementById('adminStatusBtnDesktop')?.addEventListener('click', toggleAdmin);
       document.getElementById('adminStatusBtnMobile')?.addEventListener('click', toggleAdmin);
 
-      // PIN Modal Form
       document.getElementById('pinForm')?.addEventListener('submit', (e) => {
         e.preventDefault();
         const input = document.getElementById('pinInput').value;
@@ -924,22 +1251,19 @@
         pendingAction = null;
       });
 
-      // Filters
+      document.getElementById('historySearch')?.addEventListener('input', renderHistory);
+      document.getElementById('historyDateFilter')?.addEventListener('change', renderHistory);
       document.getElementById('searchCompetitor')?.addEventListener('input', renderLeaderboard);
       document.getElementById('tablicaDateFilter')?.addEventListener('change', renderTablica);
       document.getElementById('leastTappedDateFilter')?.addEventListener('change', renderLeastTapped);
 
-      // Attendance Modal Close Listener
       document.getElementById('closeAttendanceModal')?.addEventListener('click', () => {
         document.getElementById('attendanceModal')?.classList.add('hidden');
       });
-
-      // Modal Close
       document.getElementById('closeModal')?.addEventListener('click', () => {
         document.getElementById('matchModal').classList.add('hidden');
       });
 
-      // Tab Switches
       document.querySelectorAll('.tab-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           const tabName = btn.getAttribute('data-tab');
@@ -960,6 +1284,7 @@
           if (tabName === 'matrix') document.getElementById('viewMatrix')?.classList.remove('hidden');
           if (tabName === 'history') document.getElementById('viewHistory')?.classList.remove('hidden');
           if (tabName === 'log') document.getElementById('viewLog')?.classList.remove('hidden');
+          if (tabName === 'admin') document.getElementById('viewAdmin')?.classList.remove('hidden');
         });
       });
     }
@@ -970,6 +1295,7 @@
       const lockIcon = document.getElementById('adminLockIcon');
       const btnText = document.getElementById('adminBtnText');
       const btnTextMobile = document.getElementById('adminBtnTextMobile');
+      const adminTabBtn = document.getElementById('adminTabBtn');
 
       if (isAdminAuthenticated) {
         if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-emerald-500/20 border-emerald-500/40 text-emerald-400";
@@ -977,16 +1303,24 @@
         if (lockIcon) lockIcon.className = "fa-solid fa-lock-open text-emerald-400";
         if (btnText) btnText.textContent = "Admin Active";
         if (btnTextMobile) btnTextMobile.textContent = "Active";
+        if (adminTabBtn) adminTabBtn.classList.remove('hidden');
       } else {
         if (desktopBtn) desktopBtn.className = "hidden sm:flex px-3 py-1.5 rounded-xl border text-xs font-semibold items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-300 hover:border-slate-600";
         if (mobileBtn) mobileBtn.className = "sm:hidden px-3 py-1.5 rounded-xl border text-xs font-semibold flex items-center gap-1.5 transition bg-slate-800 border-slate-700 text-slate-400";
         if (lockIcon) lockIcon.className = "fa-solid fa-lock text-amber-400";
         if (btnText) btnText.textContent = "Admin";
         if (btnTextMobile) btnTextMobile.textContent = "Admin";
+        
+        if (adminTabBtn) {
+          adminTabBtn.classList.add('hidden');
+          if (adminTabBtn.classList.contains('bg-amber-500')) {
+             document.querySelector('.tab-btn[data-tab="tablica"]')?.click();
+          }
+        }
       }
     }
 
-    function promptPIN(requiredPin, callback, title = "Autorizacija", subtitle = "Unesi PIN za autorizaciju") {
+    function promptPIN(requiredPin, callback, title = "Autorizacija", subtitle = "") {
       if ((requiredPin === LOG_PIN && isLogAuthenticated) || (requiredPin === ADMIN_PIN && isAdminAuthenticated)) {
         if (callback) callback();
         return;
@@ -994,7 +1328,7 @@
       forcePIN(requiredPin, callback, title, subtitle);
     }
 
-    function forcePIN(requiredPin, callback, title = "Autorizacija", subtitle = "Unesi PIN za autorizaciju") {
+    function forcePIN(requiredPin, callback, title = "Autorizacija", subtitle = "") {
       activeRequiredPin = requiredPin;
       pendingAction = callback;
 
@@ -1004,17 +1338,178 @@
       const subtitleEl = document.getElementById('pinModalSubtitle');
 
       if (titleEl) titleEl.textContent = title;
-      if (subtitleEl) subtitleEl.textContent = subtitle;
+      if (subtitleEl) {
+        subtitleEl.textContent = subtitle;
+        if (subtitle === "") {
+          subtitleEl.classList.add('hidden');
+        } else {
+          subtitleEl.classList.remove('hidden');
+        }
+      }
       if (input) input.value = '';
       if (modal) modal.classList.remove('hidden');
       setTimeout(() => input?.focus(), 100);
     }
 
+    window.openEditCompetitorModal = function(oldName) {
+      document.getElementById('editCompetitorOldName').value = oldName;
+      document.getElementById('editCompetitorNewNameInput').value = oldName;
+      document.getElementById('editCompetitorModal').classList.remove('hidden');
+    };
+
+    async function submitEditCompetitor() {
+      const oldName = document.getElementById('editCompetitorOldName').value;
+      const newName = document.getElementById('editCompetitorNewNameInput').value.trim();
+
+      if (!newName || newName === oldName) {
+        document.getElementById('editCompetitorModal').classList.add('hidden');
+        return;
+      }
+
+      if (COMPETITORS.includes(newName)) {
+        showToast("Natjecatelj s tim imenom već postoji!", true);
+        return;
+      }
+
+      const idx = COMPETITORS.indexOf(oldName);
+      if (idx > -1) {
+        COMPETITORS[idx] = newName;
+        saveAppConfig();
+
+        if (isCloudSyncActive && db) {
+          showToast("Ažuriram povijest u cloudu...");
+          const promises = [];
+          logs.forEach(l => {
+            let updated = false;
+            const updates = {};
+            if (l.submitter === oldName) { updates.submitter = newName; updated = true; }
+            if (l.victim === oldName) { updates.victim = newName; updated = true; }
+            if (updated) {
+              promises.push(updateDoc(doc(db, "submissions", l.id), updates));
+            }
+          });
+          await Promise.all(promises);
+          showToast("Natjecatelj i povijest uspješno ažurirani!");
+        } else {
+          logs.forEach(l => {
+            if (l.submitter === oldName) l.submitter = newName;
+            if (l.victim === oldName) l.victim = newName;
+          });
+          saveLocalLogs();
+          renderAll();
+          showToast("Natjecatelj uspješno uređen!");
+        }
+      }
+      document.getElementById('editCompetitorModal').classList.add('hidden');
+    }
+
+    window.openDeleteCompetitorModal = function(name) {
+      document.getElementById('deleteCompetitorTargetName').value = name;
+      document.getElementById('deleteCompetitorWarning').textContent = `Oprez! Brisanje natjecatelja "${name}" trajno će obrisati sve njegove submissione i sve submissione zabilježene protiv njega!`;
+      document.getElementById('deleteCompetitorPinInput').value = '';
+      document.getElementById('deleteCompetitorModal').classList.remove('hidden');
+    };
+
+    async function confirmDeleteCompetitor() {
+      const name = document.getElementById('deleteCompetitorTargetName').value;
+      const enteredPin = document.getElementById('deleteCompetitorPinInput').value.trim();
+
+      if (enteredPin !== ADMIN_PIN) {
+        showToast("Netočan Admin PIN!", true);
+        return;
+      }
+
+      document.getElementById('deleteCompetitorModal').classList.add('hidden');
+
+      COMPETITORS = COMPETITORS.filter(c => c !== name);
+      saveAppConfig();
+
+      const logsToDelete = logs.filter(l => l.submitter === name || l.victim === name);
+
+      if (isCloudSyncActive && db) {
+        showToast("Brišem povezane submissione...");
+        try {
+          const promises = logsToDelete.map(l => deleteDoc(doc(db, "submissions", l.id)));
+          await Promise.all(promises);
+          showToast(`Natjecatelj ${name} i svi povezani unosi obrisani.`);
+        } catch (e) {
+          showToast("Greška pri brisanju unosa iz clouda", true);
+        }
+      } else {
+        logs = logs.filter(l => l.submitter !== name && l.victim !== name);
+        saveLocalLogs();
+        renderAll();
+        showToast(`Natjecatelj ${name} i svi povezani unosi obrisani.`);
+      }
+    }
+
+    window.openEditDateModal = function(oldDate) {
+      document.getElementById('editDateOldVal').value = oldDate;
+      document.getElementById('editDateNewValInput').value = oldDate;
+      document.getElementById('editDateModal').classList.remove('hidden');
+    };
+
+    async function submitEditDate() {
+      const oldDate = document.getElementById('editDateOldVal').value;
+      const newDate = document.getElementById('editDateNewValInput').value.trim();
+
+      if (!newDate || newDate === oldDate) {
+        document.getElementById('editDateModal').classList.add('hidden');
+        return;
+      }
+
+      const idx = DATES.indexOf(oldDate);
+      if (idx > -1) {
+        DATES[idx] = newDate;
+        saveAppConfig();
+
+        if (isCloudSyncActive && db) {
+          showToast("Ažuriram datume u cloudu...");
+          const promises = [];
+          logs.forEach(l => {
+            if (l.date === oldDate) {
+              promises.push(updateDoc(doc(db, "submissions", l.id), { date: newDate }));
+            }
+          });
+          await Promise.all(promises);
+          showToast("Datum uspješno ažuriran!");
+        } else {
+          logs.forEach(l => {
+            if (l.date === oldDate) l.date = newDate;
+          });
+          saveLocalLogs();
+          renderAll();
+          showToast("Datum uspješno uređen!");
+        }
+      }
+      document.getElementById('editDateModal').classList.add('hidden');
+    }
+
+    window.deleteDateItem = function(d) {
+      promptPIN(ADMIN_PIN, () => {
+        DATES = DATES.filter(x => x !== d);
+        saveAppConfig();
+        showToast(`Datum ${d} obrisan.`);
+      }, "Admin Autorizacija", "Unesi Admin PIN za brisanje datuma");
+    };
+
     async function handleEditSubmit() {
       const id = document.getElementById('editLogId').value;
       const submitter = document.getElementById('editSubmitter').value;
       const victim = document.getElementById('editVictim').value;
-      const date = document.getElementById('editDate').value;
+      let date = document.getElementById('editDate')?.value;
+
+      if (useCustomDatePicker && date) {
+        const parts = date.split('-');
+        if (parts.length === 3) {
+          date = `${parts[2]}.${parts[1]}.`;
+        }
+      }
+
+      if (!date) {
+        showToast("Datum nije odabran!", true);
+        return;
+      }
 
       if (submitter === victim) {
         showToast("Pobjednik i protivnik ne mogu biti isti!", true);
@@ -1049,9 +1544,27 @@
         document.getElementById('editLogId').value = log.id;
         document.getElementById('editSubmitter').value = log.submitter;
         document.getElementById('editVictim').value = log.victim;
-        document.getElementById('editDate').value = log.date;
+        const editDateInput = document.getElementById('editDate');
+        if (editDateInput) {
+          if (useCustomDatePicker) {
+            const parts = log.date ? log.date.split('.') : [];
+            if (parts.length >= 2) {
+              const currentYear = new Date().getFullYear();
+              const formattedDate = `${currentYear}-${parts[1]}-${parts[0]}`;
+              editDateInput.value = formattedDate;
+            } else {
+              editDateInput.value = log.date;
+            }
+          } else {
+            editDateInput.value = log.date;
+          }
+        }
         document.getElementById('editSubModal').classList.remove('hidden');
-      }, "Admin Autorizacija", "Unesi Admin PIN za uređivanje");
+      }, "Admin Autorizacija", "");
+    };
+
+    window.requestDeleteLog = function(id) {
+      promptPIN(ADMIN_PIN, () => deleteLogItem(id), "Admin Autorizacija", "");
     };
 
     function renderHistory() {
@@ -1083,16 +1596,49 @@
           <td class="py-3 px-4 text-slate-100 font-semibold">${log.submitter}</td>
           <td class="py-3 px-4 text-slate-300">${log.victim}</td>
           <td class="py-3 px-4 text-right space-x-1">
-            <button onclick="window.openEditModal('${log.id}')" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs transition">
+            <button onclick="window.openEditModal('${log.id}')" type="button" class="px-2.5 py-1 bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/30 rounded-lg text-xs transition">
               <i class="fa-solid fa-pen-to-square"></i> Uredi
             </button>
-            <button onclick="window.requestDeleteLog('${log.id}')" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs transition">
+            <button onclick="window.requestDeleteLog('${log.id}')" type="button" class="px-2.5 py-1 bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/30 rounded-lg text-xs transition">
               <i class="fa-solid fa-trash-can"></i> Obriši
             </button>
           </td>
         `;
         tbody.appendChild(tr);
       });
+    }
+
+    function renderAdminPanel() {
+      const uList = document.getElementById('adminUsersList');
+      const dList = document.getElementById('adminDatesList');
+      if (!uList || !dList) return;
+
+      uList.innerHTML = '';
+      COMPETITORS.forEach(c => {
+        uList.innerHTML += `
+          <li class="flex items-center justify-between p-2 bg-slate-950 border border-slate-800 rounded-lg mb-2 last:mb-0 shadow-sm">
+            <span class="text-slate-200 font-medium">${c}</span>
+            <div class="flex gap-1.5">
+              <button onclick="window.openEditCompetitorModal('${c}')" type="button" class="px-2 py-1 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/30 hover:bg-amber-500/20 transition"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="window.openDeleteCompetitorModal('${c}')" type="button" class="px-2 py-1 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/30 hover:bg-rose-500/20 transition"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </li>
+        `;
+      });
+
+      dList.innerHTML = '';
+      DATES.forEach(d => {
+        dList.innerHTML += `
+          <li class="flex items-center justify-between p-2 bg-slate-950 border border-slate-800 rounded-lg mb-2 last:mb-0 shadow-sm">
+            <span class="text-slate-200 font-medium">${d}</span>
+            <div class="flex gap-1.5">
+              <button onclick="window.openEditDateModal('${d}')" type="button" class="px-2 py-1 bg-amber-500/10 text-amber-400 rounded-lg border border-amber-500/30 hover:bg-amber-500/20 transition"><i class="fa-solid fa-pen"></i></button>
+              <button onclick="window.deleteDateItem('${d}')" type="button" class="px-2 py-1 bg-rose-500/10 text-rose-400 rounded-lg border border-rose-500/30 hover:bg-rose-500/20 transition"><i class="fa-solid fa-trash"></i></button>
+            </div>
+          </li>
+        `;
+      });
+      updateAdminDateControlsState();
     }
 
     function renderAll() {
@@ -1103,10 +1649,10 @@
       renderLeaderboard();
       renderMatrix();
       renderHistory();
+      renderAdminPanel();
     }
 
     function openSubCountModal() {
-      const submitter = document.getElementById('formSubmitter').value;
       const victim = document.getElementById('formVictim').value;
       const subtitle = document.getElementById('subCountModalSubtitle');
       if (subtitle) {
@@ -1119,12 +1665,20 @@
     async function handleFormSubmit() {
       const submitter = document.getElementById('formSubmitter').value;
       const victim = document.getElementById('formVictim').value;
-      const date = document.getElementById('formDate').value;
+      let dateVal = document.getElementById('formDate')?.value;
+
+      if (useCustomDatePicker && dateVal) {
+        const parts = dateVal.split('-');
+        if (parts.length === 3) {
+          dateVal = `${parts[2]}.${parts[1]}.`;
+        }
+      }
+
       const countInput = document.getElementById('subCountInput');
       const count = Math.max(1, parseInt(countInput?.value || '1', 10));
 
-      if (!date) {
-        showToast("Datum treninga nije odabran!", true);
+      if (!dateVal) {
+        showToast("Datum nije odabran!", true);
         return;
       }
 
@@ -1140,7 +1694,7 @@
             promises.push(addDoc(collection(db, "submissions"), {
               submitter,
               victim,
-              date,
+              date: dateVal,
               createdAt: new Date().toISOString()
             }));
           }
@@ -1152,7 +1706,7 @@
               id: 'local_' + Date.now() + '_' + i,
               submitter,
               victim,
-              date,
+              date: dateVal,
               createdAt: new Date().toISOString()
             });
           }
@@ -1162,7 +1716,7 @@
         }
 
         const formDate = document.getElementById('formDate');
-        if (formDate) formDate.value = "";
+        if (formDate && !useCustomDatePicker) formDate.value = "";
 
         const mainTabBtn = document.querySelector('.tab-btn[data-tab="tablica"]');
         if (mainTabBtn) mainTabBtn.click();
@@ -1200,13 +1754,13 @@
       tbody.innerHTML = '';
 
       const filteredLogs = filterDate === 'ALL' ? logs : logs.filter(l => l.date === filterDate);
+      const activeDatesList = useCustomDatePicker ? Array.from(new Set(logs.map(l => l.date).filter(Boolean))) : DATES;
 
       const stats = COMPETITORS.map(name => {
         const userWins = filteredLogs.filter(l => l.submitter === name);
         const totalWins = userWins.length;
         const uniqueVictims = new Set(userWins.map(l => l.victim)).size;
 
-        // Calculate unique dates attended
         const attendedDates = new Set(filteredLogs.filter(l => l.submitter === name || l.victim === name).map(l => l.date)).size;
 
         let maxVictimSubs = 0;
@@ -1261,6 +1815,8 @@
           rankBadge = `<span class="w-7 h-7 rounded-lg bg-amber-700 text-slate-100 font-extrabold flex items-center justify-center text-xs">3</span>`;
         }
 
+        const denominator = activeDatesList.length > 0 ? activeDatesList.length : 1;
+
         const tr = document.createElement('tr');
         tr.className = `${rowBg} transition border-b border-slate-800/40`;
         tr.innerHTML = `
@@ -1272,11 +1828,11 @@
             </span>
           </td>
           <td class="py-3 px-4 text-center">
-            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-amber-300 hover:border-amber-500/50 font-medium text-xs transition cursor-pointer">
-              <i class="fa-solid fa-calendar-check text-amber-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
+            <button onclick="window.openAttendanceModal('${player.name}')" type="button" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-amber-300 hover:border-amber-500/50 font-medium text-xs transition cursor-pointer">
+              <i class="fa-solid fa-calendar-check text-amber-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${denominator}
             </button>
           </td>
-          <td class="py-3 px-4 text-center text-slate-300">${player.uniqueVictims} / ${COMPETITORS.length - 1}</td>
+          <td class="py-3 px-4 text-center text-slate-300">${player.uniqueVictims} / ${COMPETITORS.length > 0 ? COMPETITORS.length - 1 : 0}</td>
           <td class="py-3 px-4 text-center text-xs text-amber-300/90 font-medium">${player.favoriteVictimText}</td>
           <td class="py-3 px-4 text-center text-xs">${player.toughestText}</td>
         `;
@@ -1291,13 +1847,13 @@
       tbody.innerHTML = '';
 
       const filteredLogs = filterDate === 'ALL' ? logs : logs.filter(l => l.date === filterDate);
+      const activeDatesList = useCustomDatePicker ? Array.from(new Set(logs.map(l => l.date).filter(Boolean))) : DATES;
 
       const stats = COMPETITORS.map(name => {
         const userLosses = filteredLogs.filter(l => l.victim === name);
         const totalLosses = userLosses.length;
         const totalWins = filteredLogs.filter(l => l.submitter === name).length;
 
-        // Calculate unique dates attended
         const attendedDates = new Set(filteredLogs.filter(l => l.submitter === name || l.victim === name).map(l => l.date)).size;
 
         let maxExecutionCount = 0;
@@ -1320,6 +1876,7 @@
       });
 
       stats.sort((a, b) => a.totalLosses - b.totalLosses || b.totalWins - a.totalWins);
+      const denominator = activeDatesList.length > 0 ? activeDatesList.length : 1;
 
       stats.forEach((player, idx) => {
         const rank = idx + 1;
@@ -1346,8 +1903,8 @@
             </span>
           </td>
           <td class="py-3 px-4 text-center">
-            <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/50 font-medium text-xs transition cursor-pointer">
-              <i class="fa-solid fa-calendar-check text-emerald-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${DATES.length}
+            <button onclick="window.openAttendanceModal('${player.name}')" type="button" title="Klikni za detaljne dolaske" class="inline-flex items-center bg-slate-950 px-2.5 py-1 rounded-lg border border-slate-800/80 text-slate-300 hover:text-emerald-300 hover:border-emerald-500/50 font-medium text-xs transition cursor-pointer">
+              <i class="fa-solid fa-calendar-check text-emerald-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${denominator}
             </button>
           </td>
           <td class="py-3 px-4 text-center text-xs font-medium text-slate-300">${player.executionerText}</td>
@@ -1359,6 +1916,8 @@
     function renderLeaderboard() {
       const searchInput = document.getElementById('searchCompetitor');
       const searchTerm = (searchInput?.value || '').toLowerCase();
+      const activeDatesList = useCustomDatePicker ? Array.from(new Set(logs.map(l => l.date).filter(Boolean))) : DATES;
+      const denominator = activeDatesList.length > 0 ? activeDatesList.length : 1;
       
       const stats = COMPETITORS.map(name => {
         const userWins = logs.filter(l => l.submitter === name);
@@ -1367,7 +1926,6 @@
         const attendedDatesSet = new Set(userLogs.map(l => l.date));
         const attendedDates = attendedDatesSet.size;
 
-        // Average submissions per session attended
         const avgSubsPerSession = attendedDates > 0 ? (totalWins / attendedDates).toFixed(1) : "0.0";
 
         const opponentMap = {};
@@ -1409,7 +1967,7 @@
             const hasWin = count > 0;
 
             opponentChipsHtml += `
-              <button onclick="window.openMatchDetails('${player.name}', '${oppName}')" 
+              <button onclick="window.openMatchDetails('${player.name}', '${oppName}')" type="button"
                       class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs transition ${hasWin ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20' : 'bg-slate-950/60 border-slate-800/80 text-slate-500 hover:border-slate-700'}">
                 <span class="font-medium truncate max-w-[70px]">${oppName}</span>
                 <span class="ml-1.5 font-bold px-1.5 py-0.2 rounded ${hasWin ? 'bg-amber-500 text-slate-950 text-[11px]' : 'bg-slate-800 text-slate-600 text-[10px]'}">
@@ -1423,7 +1981,6 @@
           card.className = `bg-slate-900 border ${borderHighlight} rounded-2xl p-4 transition hover:border-slate-700 shadow-md`;
           card.innerHTML = `
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-              <!-- Competitor Info & Big Sub-ovi Badge -->
               <div class="flex items-center space-x-3">
                 ${rankBadge}
                 <div class="flex items-center gap-3 flex-wrap">
@@ -1432,7 +1989,6 @@
                     <p class="text-xs text-slate-400">6am NOGI Borac</p>
                   </div>
                   
-                  <!-- Prominent Sub-ovi Badge Next to Name -->
                   <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/40 px-3.5 py-1.5 rounded-xl text-amber-400 shadow-inner">
                     <i class="fa-solid fa-trophy text-amber-400 text-base sm:text-lg"></i>
                     <div class="flex items-baseline gap-1">
@@ -1443,13 +1999,12 @@
                 </div>
               </div>
 
-              <!-- Stat Badges for Dolasci and Sub/Trening -->
               <div class="flex items-center gap-2 w-full sm:w-auto">
-                <button onclick="window.openAttendanceModal('${player.name}')" title="Klikni za detaljne dolaske" class="flex-1 sm:flex-none flex flex-col items-center justify-center bg-slate-950/80 hover:bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-800/80 hover:border-amber-500/50 transition cursor-pointer text-center min-w-[95px]">
+                <button onclick="window.openAttendanceModal('${player.name}')" type="button" title="Klikni za detaljne dolaske" class="flex-1 sm:flex-none flex flex-col items-center justify-center bg-slate-950/80 hover:bg-slate-800 px-3.5 py-2 rounded-xl border border-slate-800/80 hover:border-amber-500/50 transition cursor-pointer text-center min-w-[95px]">
                   <span class="text-[10px] uppercase text-slate-400 font-semibold flex items-center gap-1">
                     <i class="fa-solid fa-calendar-check text-amber-400"></i> Dolasci
                   </span>
-                  <span class="text-sm font-bold text-slate-200 mt-0.5">${player.attendedDates}/${DATES.length}</span>
+                  <span class="text-sm font-bold text-slate-200 mt-0.5">${player.attendedDates}/${denominator}</span>
                 </button>
 
                 <div class="flex-1 sm:flex-none flex flex-col items-center justify-center bg-slate-950/80 px-3.5 py-2 rounded-xl border border-slate-800/80 text-center min-w-[95px]" title="Prosječan broj submissiona po dolasku">
@@ -1529,7 +2084,7 @@
               <div class="font-semibold text-slate-200">${submitter} završio ${victim}</div>
               <div class="text-[10px] text-amber-400 font-semibold">${m.date || 'Nema datuma'}</div>
             </div>
-            <button onclick="window.requestDeleteLog('${m.id}')" class="text-rose-400 hover:text-rose-300 p-1">
+            <button onclick="window.requestDeleteLog('${m.id}')" type="button" class="text-rose-400 hover:text-rose-300 p-1">
               <i class="fa-solid fa-trash-can text-sm"></i>
             </button>
           `;
@@ -1550,15 +2105,17 @@
 
       title.textContent = `Dolasci: ${name}`;
 
+      const activeDatesList = useCustomDatePicker ? Array.from(new Set(logs.map(l => l.date).filter(Boolean))) : DATES;
       const playerLogs = logs.filter(l => l.submitter === name || l.victim === name);
       const attendedDatesSet = new Set(playerLogs.map(l => l.date));
       const attendedCount = attendedDatesSet.size;
-      const percentage = Math.round((attendedCount / DATES.length) * 100);
+      const totalDenominator = activeDatesList.length > 0 ? activeDatesList.length : 1;
+      const percentage = Math.round((attendedCount / totalDenominator) * 100);
 
       if (summary) {
         summary.innerHTML = `
           <div class="flex items-center justify-between bg-slate-950 p-2.5 rounded-xl border border-slate-800 font-medium">
-            <span>Prisutnost: <strong class="text-amber-400">${attendedCount} / ${DATES.length}</strong> treninga</span>
+            <span>Prisutnost: <strong class="text-amber-400">${attendedCount} / ${totalDenominator}</strong> treninga</span>
             <span class="text-emerald-400 font-bold">${percentage}%</span>
           </div>
         `;
@@ -1566,7 +2123,7 @@
 
       grid.innerHTML = '';
 
-      DATES.forEach(d => {
+      activeDatesList.forEach(d => {
         const isAttended = attendedDatesSet.has(d);
         const dateLogs = playerLogs.filter(l => l.date === d);
         const subsGiven = dateLogs.filter(l => l.submitter === name).length;
@@ -1601,10 +2158,6 @@
       });
 
       modal.classList.remove('hidden');
-    };
-
-    window.requestDeleteLog = function(id) {
-      promptPIN(ADMIN_PIN, () => deleteLogItem(id), "Admin Autorizacija", "Unesi Admin PIN za brisanje");
     };
 
     function showToast(msg, isError = false) {
