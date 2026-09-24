@@ -687,10 +687,10 @@
 
       submitterSelect.innerHTML = '';
       victimSelect.innerHTML = '';
-      dateSelect.innerHTML = '';
+      dateSelect.innerHTML = '<option value="" disabled selected>-- Odaberi datum --</option>';
       if (editSubmitter) editSubmitter.innerHTML = '';
       if (editVictim) editVictim.innerHTML = '';
-      if (editDate) editDate.innerHTML = '';
+      if (editDate) editDate.innerHTML = '<option value="" disabled>-- Odaberi datum --</option>';
 
       if (tablicaFilter) tablicaFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
       if (leastTappedFilter) leastTappedFilter.innerHTML = '<option value="ALL">Svi Datumi (Overall)</option>';
@@ -713,6 +713,8 @@
         if (leastTappedFilter) leastTappedFilter.add(new Option(d, d));
         if (historyDateFilter) historyDateFilter.add(new Option(d, d));
       });
+
+      dateSelect.value = "";
     }
 
     function setupEventListeners() {
@@ -845,6 +847,12 @@
         e.preventDefault();
         const submitter = document.getElementById('formSubmitter').value;
         const victim = document.getElementById('formVictim').value;
+        const date = document.getElementById('formDate').value;
+
+        if (!date) {
+          showToast("Datum treninga nije odabran!", true);
+          return;
+        }
 
         if (submitter === victim) {
           showToast("Pobjednik i protivnik ne mogu biti isti!", true);
@@ -1115,6 +1123,11 @@
       const countInput = document.getElementById('subCountInput');
       const count = Math.max(1, parseInt(countInput?.value || '1', 10));
 
+      if (!date) {
+        showToast("Datum treninga nije odabran!", true);
+        return;
+      }
+
       if (submitter === victim) {
         showToast("Pobjednik i protivnik ne mogu biti isti!", true);
         return;
@@ -1147,6 +1160,9 @@
           renderAll();
           showToast(`Spremljeno lokalno (${count}x): ${submitter} -> ${victim}`);
         }
+
+        const formDate = document.getElementById('formDate');
+        if (formDate) formDate.value = "";
 
         const mainTabBtn = document.querySelector('.tab-btn[data-tab="tablica"]');
         if (mainTabBtn) mainTabBtn.click();
