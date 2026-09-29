@@ -241,7 +241,7 @@
           </div>
           <div class="text-xs text-slate-400 flex items-center gap-2">
             <span class="text-amber-400"><i class="fa-solid fa-circle-info"></i></span>
-            Klikni na protivnički ID za pregled svih sub-ova
+            Klikni na protivnički ID za pregled svih sub-ova/poraza
           </div>
         </div>
 
@@ -1268,6 +1268,14 @@
         btn.addEventListener('click', () => {
           const tabName = btn.getAttribute('data-tab');
           
+          // If switching away from leaderboard, clear the search input
+          if (tabName !== 'leaderboard') {
+            const searchInput = document.getElementById('searchCompetitor');
+            if (searchInput) {
+              searchInput.value = '';
+            }
+          }
+
           document.querySelectorAll('.tab-btn').forEach(b => {
             b.classList.remove('bg-amber-500', 'text-slate-950', 'font-semibold', 'shadow-md');
             b.classList.add('text-slate-400', 'hover:text-slate-200', 'hover:bg-slate-800');
@@ -1280,7 +1288,10 @@
           
           if (tabName === 'tablica') document.getElementById('viewTablica')?.classList.remove('hidden');
           if (tabName === 'leastTapped') document.getElementById('viewLeastTapped')?.classList.remove('hidden');
-          if (tabName === 'leaderboard') document.getElementById('viewLeaderboard')?.classList.remove('hidden');
+          if (tabName === 'leaderboard') {
+            document.getElementById('viewLeaderboard')?.classList.remove('hidden');
+            renderLeaderboard();
+          }
           if (tabName === 'matrix') document.getElementById('viewMatrix')?.classList.remove('hidden');
           if (tabName === 'history') document.getElementById('viewHistory')?.classList.remove('hidden');
           if (tabName === 'log') document.getElementById('viewLog')?.classList.remove('hidden');
@@ -1567,6 +1578,15 @@
       promptPIN(ADMIN_PIN, () => deleteLogItem(id), "Admin Autorizacija", "");
     };
 
+    window.jumpToLeaderboard = function(name) {
+      document.querySelector('.tab-btn[data-tab="leaderboard"]')?.click();
+      const searchInput = document.getElementById('searchCompetitor');
+      if (searchInput) {
+        searchInput.value = name;
+        renderLeaderboard();
+      }
+    };
+
     function renderHistory() {
       const tbody = document.getElementById('historyTableBody');
       if (!tbody) return;
@@ -1758,8 +1778,14 @@
 
       const stats = COMPETITORS.map(name => {
         const userWins = filteredLogs.filter(l => l.submitter === name);
+        const userLosses = filteredLogs.filter(l => l.victim === name);
         const totalWins = userWins.length;
-        const uniqueVictims = new Set(userWins.map(l => l.victim)).size;
+        
+        // Count unique opponents from both wins and losses
+        const uniqueOpponents = new Set([
+          ...userWins.map(l => l.victim),
+          ...userLosses.map(l => l.submitter)
+        ]).size;
 
         const attendedDates = new Set(filteredLogs.filter(l => l.submitter === name || l.victim === name).map(l => l.date)).size;
 
@@ -1796,10 +1822,10 @@
           }
         }
 
-        return { name, totalWins, uniqueVictims, attendedDates, favoriteVictimText, toughestText };
+        return { name, totalWins, uniqueOpponents, attendedDates, favoriteVictimText, toughestText };
       });
 
-      stats.sort((a, b) => b.totalWins - a.totalWins || b.uniqueVictims - a.uniqueVictims);
+      stats.sort((a, b) => b.totalWins - a.totalWins || b.uniqueOpponents - a.uniqueOpponents);
 
       stats.forEach((player, idx) => {
         const rank = idx + 1;
@@ -1821,7 +1847,7 @@
         tr.className = `${rowBg} transition border-b border-slate-800/40`;
         tr.innerHTML = `
           <td class="py-3 px-4 font-bold">${rankBadge}</td>
-          <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
+          <td class="py-3 px-4 text-slate-100 font-semibold cursor-pointer hover:text-amber-400 transition" onclick="window.jumpToLeaderboard('${player.name}')" title="Klikni za pregled na Leaderboardu">${player.name}</td>
           <td class="py-3 px-4 text-center">
             <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 text-amber-400 font-bold text-sm">
               ${player.totalWins}
@@ -1832,7 +1858,7 @@
               <i class="fa-solid fa-calendar-check text-amber-400/80 mr-1 text-[10px]"></i>${player.attendedDates}/${denominator}
             </button>
           </td>
-          <td class="py-3 px-4 text-center text-slate-300">${player.uniqueVictims} / ${COMPETITORS.length > 0 ? COMPETITORS.length - 1 : 0}</td>
+          <td class="py-3 px-4 text-center text-slate-300">${player.uniqueOpponents} / ${COMPETITORS.length > 0 ? COMPETITORS.length - 1 : 0}</td>
           <td class="py-3 px-4 text-center text-xs text-amber-300/90 font-medium">${player.favoriteVictimText}</td>
           <td class="py-3 px-4 text-center text-xs">${player.toughestText}</td>
         `;
@@ -1896,7 +1922,7 @@
         tr.className = `${rowBg} transition border-b border-slate-800/40`;
         tr.innerHTML = `
           <td class="py-3 px-4 font-bold">${rankBadge}</td>
-          <td class="py-3 px-4 text-slate-100 font-semibold">${player.name}</td>
+          <td class="py-3 px-4 text-slate-100 font-semibold cursor-pointer hover:text-amber-400 transition" onclick="window.jumpToLeaderboard('${player.name}')" title="Klikni za pregled na Leaderboardu">${player.name}</td>
           <td class="py-3 px-4 text-center">
             <span class="inline-block bg-slate-950 px-3 py-1 rounded-lg border border-slate-800 ${player.totalLosses === 0 ? 'text-emerald-400' : 'text-rose-400'} font-bold text-sm">
               ${player.totalLosses}
@@ -1922,6 +1948,8 @@
       const stats = COMPETITORS.map(name => {
         const userWins = logs.filter(l => l.submitter === name);
         const totalWins = userWins.length;
+        const userLosses = logs.filter(l => l.victim === name);
+
         const userLogs = logs.filter(l => l.submitter === name || l.victim === name);
         const attendedDatesSet = new Set(userLogs.map(l => l.date));
         const attendedDates = attendedDatesSet.size;
@@ -1931,7 +1959,9 @@
         const opponentMap = {};
         COMPETITORS.forEach(opp => {
           if (opp !== name) {
-            opponentMap[opp] = userWins.filter(l => l.victim === opp).length;
+            const wins = userWins.filter(l => l.victim === opp).length;
+            const losses = userLosses.filter(l => l.submitter === opp).length;
+            opponentMap[opp] = { wins, losses };
           }
         });
 
@@ -1963,15 +1993,34 @@
 
           let opponentChipsHtml = '';
           COMPETITORS.filter(opp => opp !== player.name).forEach(oppName => {
-            const count = player.opponentMap[oppName] || 0;
-            const hasWin = count > 0;
+            const oppData = player.opponentMap[oppName] || { wins: 0, losses: 0 };
+            const wins = oppData.wins;
+            const losses = oppData.losses;
+
+            let chipClass = 'bg-slate-950/60 border-slate-800/80 text-slate-500 hover:border-slate-700';
+            let countDisplay = '0';
+            let badgeClass = 'bg-slate-800 text-slate-600 text-[10px]';
+
+            if (wins > 0 && losses === 0) {
+              chipClass = 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20';
+              countDisplay = `${wins}`;
+              badgeClass = 'bg-amber-500 text-slate-950 text-[11px]';
+            } else if (losses > 0 && wins === 0) {
+              chipClass = 'bg-rose-500/10 border-rose-500/30 text-rose-300 hover:bg-rose-500/20';
+              countDisplay = `-${losses}`;
+              badgeClass = 'bg-rose-500 text-white text-[11px]';
+            } else if (wins > 0 && losses > 0) {
+              chipClass = 'bg-purple-500/10 border-purple-500/30 text-purple-300 hover:bg-purple-500/20';
+              countDisplay = `+${wins}/-${losses}`;
+              badgeClass = 'bg-purple-500 text-white text-[10px]';
+            }
 
             opponentChipsHtml += `
               <button onclick="window.openMatchDetails('${player.name}', '${oppName}')" type="button"
-                      class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs transition ${hasWin ? 'bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20' : 'bg-slate-950/60 border-slate-800/80 text-slate-500 hover:border-slate-700'}">
+                      class="flex items-center justify-between px-2.5 py-1.5 rounded-lg border text-xs transition ${chipClass}">
                 <span class="font-medium truncate max-w-[70px]">${oppName}</span>
-                <span class="ml-1.5 font-bold px-1.5 py-0.2 rounded ${hasWin ? 'bg-amber-500 text-slate-950 text-[11px]' : 'bg-slate-800 text-slate-600 text-[10px]'}">
-                  ${count}
+                <span class="ml-1.5 font-bold px-1.5 py-0.2 rounded ${badgeClass}">
+                  ${countDisplay}
                 </span>
               </button>
             `;
@@ -1989,11 +2038,14 @@
                     <p class="text-xs text-slate-400">6am NOGI Borac</p>
                   </div>
                   
-                  <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/40 px-3.5 py-1.5 rounded-xl text-amber-400 shadow-inner">
-                    <i class="fa-solid fa-trophy text-amber-400 text-base sm:text-lg"></i>
-                    <div class="flex items-baseline gap-1">
-                      <span class="text-xl sm:text-2xl font-black text-amber-400 leading-none">${player.totalWins}</span>
-                      <span class="text-[10px] font-bold uppercase tracking-wider text-amber-300/80">Sub-ovi</span>
+                  <div class="flex items-center gap-2">
+                    <!-- Sub-ovi Badge -->
+                    <div class="flex items-center gap-1.5 bg-amber-500/10 border border-amber-500/40 px-3.5 py-1.5 rounded-xl text-amber-400 shadow-inner">
+                      <i class="fa-solid fa-trophy text-amber-400 text-sm"></i>
+                      <div class="flex items-baseline gap-1">
+                        <span class="text-lg font-black text-amber-400 leading-none">${player.totalWins}</span>
+                        <span class="text-[10px] font-bold uppercase tracking-wider text-amber-300/80">Sub</span>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -2063,7 +2115,7 @@
     }
 
     window.openMatchDetails = function(submitter, victim) {
-      const matches = logs.filter(l => l.submitter === submitter && l.victim === victim);
+      const matches = logs.filter(l => (l.submitter === submitter && l.victim === victim) || (l.submitter === victim && l.victim === submitter));
       const modal = document.getElementById('matchModal');
       const title = document.getElementById('modalTitle');
       const list = document.getElementById('modalMatchList');
@@ -2081,7 +2133,7 @@
           item.className = "flex items-center justify-between p-2.5 bg-slate-950 rounded-xl border border-slate-800";
           item.innerHTML = `
             <div>
-              <div class="font-semibold text-slate-200">${submitter} završio ${victim}</div>
+              <div class="font-semibold text-slate-200">${m.submitter} završio ${m.victim}</div>
               <div class="text-[10px] text-amber-400 font-semibold">${m.date || 'Nema datuma'}</div>
             </div>
             <button onclick="window.requestDeleteLog('${m.id}')" type="button" class="text-rose-400 hover:text-rose-300 p-1">
