@@ -184,7 +184,6 @@
                   <th class="py-3.5 px-4 text-center">Ukupno Sub-ova</th>
                   <th class="py-3.5 px-4 text-center">Dolasci</th>
                   <th class="py-3.5 px-4 text-center">Različitih Protivnika</th>
-                  <th class="py-3.5 px-4 text-center">Najdraža Žrtva</th>
                   <th class="py-3.5 px-4 text-center rounded-r-xl">Najteži Protivnik</th>
                 </tr>
               </thead>
@@ -1789,21 +1788,6 @@
 
         const attendedDates = new Set(filteredLogs.filter(l => l.submitter === name || l.victim === name).map(l => l.date)).size;
 
-        let maxVictimSubs = 0;
-        let favoriteVictims = [];
-        COMPETITORS.forEach(opp => {
-          if (opp !== name) {
-            const count = userWins.filter(l => l.victim === opp).length;
-            if (count > maxVictimSubs && count > 0) {
-              maxVictimSubs = count;
-              favoriteVictims = [`${opp} (${count})`];
-            } else if (count === maxVictimSubs && count > 0) {
-              favoriteVictims.push(`${opp} (${count})`);
-            }
-          }
-        });
-        const favoriteVictimText = favoriteVictims.length > 0 ? favoriteVictims.join(', ') : '<span class="text-slate-500">-</span>';
-
         let opponentStats = COMPETITORS.filter(opp => opp !== name).map(opp => {
           const subsAgainstOpp = userWins.filter(l => l.victim === opp).length;
           const subsConcededToOpp = filteredLogs.filter(l => l.submitter === opp && l.victim === name).length;
@@ -1822,7 +1806,7 @@
           }
         }
 
-        return { name, totalWins, uniqueOpponents, attendedDates, favoriteVictimText, toughestText };
+        return { name, totalWins, uniqueOpponents, attendedDates, toughestText };
       });
 
       stats.sort((a, b) => b.totalWins - a.totalWins || b.uniqueOpponents - a.uniqueOpponents);
@@ -1859,7 +1843,6 @@
             </button>
           </td>
           <td class="py-3 px-4 text-center text-slate-300">${player.uniqueOpponents} / ${COMPETITORS.length > 0 ? COMPETITORS.length - 1 : 0}</td>
-          <td class="py-3 px-4 text-center text-xs text-amber-300/90 font-medium">${player.favoriteVictimText}</td>
           <td class="py-3 px-4 text-center text-xs">${player.toughestText}</td>
         `;
         tbody.appendChild(tr);
